@@ -2,19 +2,30 @@
 import { MetadataRoute } from "next";
 import { db } from "@/lib/db";
 
+// Memaksa route menjadi dynamic agar TIDAK di-prerender saat build time (saat DB Railway offline)
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.APP_URL || "https://skinsync.id";
 
-  const [products, categories] = await Promise.all([
-    db.product.findMany({
-      where: { isActive: true, deletedAt: null },
-      select: { slug: true, updatedAt: true },
-    }),
-    db.category.findMany({
-      where: { isActive: true },
-      select: { slug: true },
-    }),
-  ]);
+  // Inisialisasi array kosong sebagai fallback jika database tidak terjangkau saat build
+  let products: { slug: string; updatedAt: Date }[] = [];
+  let categories: { slug: string }[] = [];
+
+  try {
+    [products, categories] = await Promise.all([
+      db.product.findMany({
+        where: { isActive: true, deletedAt: null },
+        select: { slug: true, updatedAt: true },
+      }),
+      db.category.findMany({
+        where: { isActive: true },
+        select: { slug: true },
+      }),
+    ]);
+  } catch (error) {
+    console.warn("[Sitemap] Gagal mengambil data DB saat build/prerender:", error);
+  }
 
   const productEntries: MetadataRoute.Sitemap = products.map((p) => ({
     url: `${baseUrl}/products/${p.slug}`,
