@@ -1,0 +1,432 @@
+// prisma/schema.prisma
+// Skema database untuk website e-commerce skincare SkinSync
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  PAID
+  PROCESSING
+  SHIPPED
+  COMPLETED
+  EXPIRED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  EXPIRED
+  FAILED
+}
+
+enum VoucherType {
+  PERCENT
+  FIXED
+  FREE_SHIPPING
+}
+
+enum StockMovementType {
+  IN
+  OUT
+  ADJUST
+  RESERVE
+  RELEASE
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum NotifStatus {
+  QUEUED
+  SENT
+  FAILED
+}
+
+model User {
+  id          Int        @id @default(autoincrement())
+  name        String
+  phone       String     @unique        // format 62xxxxxxxxxx
+  role        Role       @default(CUSTOMER)
+  status      UserStatus @default(ACTIVE)
+  skinTypeId  Int?
+  allergies   String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  skinType    SkinType?  @relation(fields: [skinTypeId], references: [id])
+  addresses   Address[]
+  orders      Order[]
+  reviews     Review[]
+  cart        Cart?
+  auditLogs   AuditLog[]
+}
+
+model Address {
+  id            Int     @id @default(autoincrement())
+  userId        Int
+  label         String
+  recipientName String
+  phone         String
+  province      String
+  city          String
+  district      String
+  postalCode    String
+  addressLine   String
+  isDefault     Boolean @default(false)
+
+  user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model OtpCode {
+  id        Int       @id @default(autoincrement())
+  phone     String
+  codeHash  String
+  expiresAt DateTime
+  attempts  Int       @default(0)
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([phone, createdAt])
+}
+
+model Brand {
+  id       Int       @id @default(autoincrement())
+  name     String
+  slug     String    @unique
+  logoKey  String?                // key di bucket
+  products Product[]
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String
+  slug      String    @unique
+  sortOrder Int       @default(0)
+  isActive  Boolean   @default(true)
+  products  Product[]
+}
+
+model SkinType {
+  id       Int       @id @default(autoincrement())
+  name     String
+  slug     String    @unique
+  products Product[]
+  users    User[]
+}
+
+model SkinConcern {
+  id       Int       @id @default(autoincrement())
+  name     String
+  slug     String    @unique
+  products Product[]
+}
+
+model Product {
+  id           Int              @id @default(autoincrement())
+  brandId      Int
+  categoryId   Int
+  name         String
+  slug         String           @unique
+  description  String
+  ingredients  String
+  howToUse     String
+  bpomNumber   String
+  avgRating    Float            @default(0)
+  reviewCount  Int              @default(0)
+  isActive     Boolean          @default(true)
+  deletedAt    DateTime?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  brand        Brand            @relation(fields: [brandId], references: [id])
+  category     Category         @relation(fields: [categoryId], references: [id])
+  variants     ProductVariant[]
+  images       ProductImage[]
+  reviews      Review[]
+  skinTypes    SkinType[]
+  skinConcerns SkinConcern[]
+
+  @@index([categoryId, isActive])
+}
+
+model ProductVariant {
+  id           Int      @id @default(autoincrement())
+  productId    Int
+  sku          String   @unique
+  name         String                 // contoh: "30 ml"
+  price        Int
+  comparePrice Int?
+  weightGram   Int      @default(0)
+  stock        Int      @default(0)
+  minStock     Int      @default(5)
+  isActive     Boolean  @default(true)
+
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  stockMovements StockMovement[]
+  cartItems    CartItem[]
+  orderItems   OrderItem[]
+}
+
+model ProductImage {
+  id        Int     @id @default(autoincrement())
+  productId Int
+  key       String                // key di bucket, contoh: products/<uuid>.webp
+  altText   String?
+  sortOrder Int     @default(0)
+
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model StockMovement {
+  id            Int               @id @default(autoincrement())
+  variantId     Int
+  type          StockMovementType
+  qty           Int
+  referenceType String?           // "order" | "manual"
+  referenceId   Int?
+  note          String?
+  createdBy     Int?
+  createdAt     DateTime          @default(now())
+
+  variant       ProductVariant    @relation(fields: [variantId], references: [id])
+}
+
+model Cart {
+  id        Int        @id @default(autoincrement())
+  userId    Int        @unique          // satu keranjang per user, wajib login
+  updatedAt DateTime   @updatedAt
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+}
+
+model CartItem {
+  id        Int            @id @default(autoincrement())
+  cartId    Int
+  variantId Int
+  qty       Int
+
+  cart      Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@unique([cartId, variantId])
+}
+
+model ShippingZone {
+  id            Int     @id @default(autoincrement())
+  name          String
+  province      String
+  city          String?               // null = berlaku seluruh provinsi
+  cost          Int
+  estimatedDays String?
+  isActive      Boolean @default(true)
+  orders        Order[]
+}
+
+model Voucher {
+  id           Int         @id @default(autoincrement())
+  code         String      @unique    // simpan uppercase
+  type         VoucherType
+  value        Int                    // persen (1-100) atau nominal rupiah; diabaikan utk FREE_SHIPPING
+  maxDiscount  Int?
+  minPurchase  Int         @default(0)
+  quota        Int?                   // null = tanpa batas
+  usedCount    Int         @default(0)
+  perUserLimit Int         @default(1)
+  startsAt     DateTime
+  endsAt       DateTime
+  isActive     Boolean     @default(true)
+
+  orders       Order[]
+  usages       VoucherUsage[]
+}
+
+model VoucherUsage {
+  id        Int      @id @default(autoincrement())
+  voucherId Int
+  userId    Int
+  orderId   Int      @unique
+  createdAt DateTime @default(now())
+
+  voucher   Voucher  @relation(fields: [voucherId], references: [id])
+}
+
+model Order {
+  id             Int          @id @default(autoincrement())
+  orderNumber    String       @unique      // format: SKN-YYYYMMDD-XXXX
+  userId         Int                       // wajib, tidak ada guest checkout
+  status         OrderStatus  @default(PENDING_PAYMENT)
+  subtotal       Int
+  discountTotal  Int          @default(0)
+  shippingCost   Int
+  grandTotal     Int
+  voucherId      Int?
+  shippingZoneId Int
+  // snapshot alamat saat checkout
+  recipientName  String
+  recipientPhone String
+  shipProvince   String
+  shipCity       String
+  shipDistrict   String
+  shipPostalCode String
+  shipAddress    String
+  customerNote   String?
+  adminNote      String?
+  // pengiriman manual
+  courierName    String?
+  trackingNumber String?
+  shippedAt      DateTime?
+  completedAt    DateTime?
+  expiresAt      DateTime                  // batas waktu bayar
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  user           User         @relation(fields: [userId], references: [id])
+  voucher        Voucher?     @relation(fields: [voucherId], references: [id])
+  shippingZone   ShippingZone @relation(fields: [shippingZoneId], references: [id])
+  items          OrderItem[]
+  payments       Payment[]
+  histories      OrderStatusHistory[]
+  notifications  NotificationLog[]
+
+  @@index([userId, status])
+  @@index([status, expiresAt])
+}
+
+model OrderItem {
+  id          Int            @id @default(autoincrement())
+  orderId     Int
+  variantId   Int
+  productName String
+  variantName String
+  sku         String
+  price       Int
+  qty         Int
+  subtotal    Int
+
+  order       Order          @relation(fields: [orderId], references: [id])
+  variant     ProductVariant @relation(fields: [variantId], references: [id])
+  review      Review?
+}
+
+model OrderStatusHistory {
+  id         Int          @id @default(autoincrement())
+  orderId    Int
+  fromStatus OrderStatus?
+  toStatus   OrderStatus
+  note       String?
+  changedBy  Int?                      // null = sistem
+  createdAt  DateTime     @default(now())
+
+  order      Order        @relation(fields: [orderId], references: [id])
+}
+
+model Payment {
+  id              Int           @id @default(autoincrement())
+  orderId         Int
+  midtransOrderId String        @unique    // = orderNumber
+  snapToken       String?
+  redirectUrl     String?
+  paymentType     String?
+  amount          Int
+  status          PaymentStatus @default(PENDING)
+  paidAt          DateTime?
+  expiresAt       DateTime
+  rawResponse     Json?
+  createdAt       DateTime      @default(now())
+
+  order           Order         @relation(fields: [orderId], references: [id])
+}
+
+model PaymentWebhookLog {
+  id          Int       @id @default(autoincrement())
+  eventKey    String    @unique        // midtransOrderId + transaction_status + transaction_id
+  payload     Json
+  isValid     Boolean
+  processedAt DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+model Review {
+  id          Int          @id @default(autoincrement())
+  productId   Int
+  userId      Int
+  orderItemId Int          @unique      // hanya pembeli terverifikasi
+  rating      Int                       // 1-5
+  body        String?
+  status      ReviewStatus @default(PENDING)
+  createdAt   DateTime     @default(now())
+
+  product     Product      @relation(fields: [productId], references: [id])
+  user        User         @relation(fields: [userId], references: [id])
+  orderItem   OrderItem    @relation(fields: [orderItemId], references: [id])
+}
+
+model Banner {
+  id        Int      @id @default(autoincrement())
+  title     String
+  imageKey  String                // key di bucket
+  linkUrl   String?
+  sortOrder Int      @default(0)
+  startsAt  DateTime?
+  endsAt    DateTime?
+  isActive  Boolean  @default(true)
+}
+
+model NotificationLog {
+  id               Int         @id @default(autoincrement())
+  orderId          Int?
+  recipient        String                  // nomor WA
+  templateKey      String
+  message          String
+  status           NotifStatus @default(QUEUED)
+  attempts         Int         @default(0)
+  providerResponse Json?
+  sentAt           DateTime?
+  createdAt        DateTime    @default(now())
+
+  order            Order?      @relation(fields: [orderId], references: [id])
+
+  @@index([status, attempts])
+}
+
+model Setting {
+  id    Int    @id @default(autoincrement())
+  key   String @unique
+  value Json
+}
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  action     String
+  entityType String
+  entityId   Int?
+  oldValues  Json?
+  newValues  Json?
+  createdAt  DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id])
+}
