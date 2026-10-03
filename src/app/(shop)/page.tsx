@@ -73,15 +73,17 @@ export default async function HomePage() {
         variants: { where: { isActive: true }, orderBy: { price: "asc" }, take: 1 },
       },
       orderBy: { avgRating: "desc" },
-      take: 6,
+      take: 5,
     }),
     getSession(),
   ]);
 
-  const heroImg = banners[0] ? imageUrl(banners[0].imageKey) : featuredProducts[0]?.images[0] ? imageUrl(featuredProducts[0].images[0].key) : null;
-  const heroTitle = banners[0]?.title ?? featuredProducts[0]?.name ?? "Batch No. 042";
-  const revealImg = banners[1] ? imageUrl(banners[1].imageKey) : featuredProducts[1]?.images[0] ? imageUrl(featuredProducts[1].images[0].key) : heroImg;
-  const stillImg = banners[2] ? imageUrl(banners[2].imageKey) : featuredProducts[2]?.images[0] ? imageUrl(featuredProducts[2].images[0].key) : heroImg;
+  // Layar 1 & 2 murni brand — jangan pakai foto/nama produk apapun.
+  // Hanya banner brand (bukan produk). Kalau tidak ada banner, tampilkan tanpa foto.
+  const heroImg = banners[0] ? imageUrl(banners[0].imageKey) : null;
+  const revealImg = banners[1] ? imageUrl(banners[1].imageKey) : null;
+  const stillImg = banners[2] ?? banners[0] ?? null;
+  const stillSrc = stillImg ? imageUrl(stillImg.imageKey) : null;
 
   const railProducts: RailProduct[] = featuredProducts.map((p, i) => {
     const v = p.variants[0];
@@ -102,12 +104,12 @@ export default async function HomePage() {
   return (
     <AurelleChoreo>
       <div className="bg-[#F7F7F4] text-[#070707]">
-        {/* ============ 1. HERO — multiply photo, poster wordmark (300svh) ============ */}
+        {/* ============ 1. HERO — murni brand SkinSync, tanpa produk (300svh) ============ */}
         <section className="stage" style={{ height: "300svh" }}>
           <div className="stage-pin bg-[#F7F7F4]">
             {heroImg && (
               <div className="hero-photo absolute inset-0">
-                <Image src={heroImg} alt={heroTitle} fill className="object-cover" priority unoptimized />
+                <Image src={heroImg} alt="SkinSync — perawatan kulit harian" fill className="object-cover" priority unoptimized />
               </div>
             )}
             <div className="hero-type absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
@@ -115,7 +117,7 @@ export default async function HomePage() {
                 className="script-accent text-2xl md:text-3xl mb-4"
                 style={{ transform: "rotate(-2deg)" }}
               >
-                batch no. 042 — untuk kulit Indonesia
+                merawat kulit, merawat diri
               </span>
               <h1
                 className="wordmark"
@@ -124,33 +126,37 @@ export default async function HomePage() {
                 SKINSYNC
               </h1>
               <p className="furniture mt-6 text-[#3b3b38]">
-                Niacinamide 5% — 30 ml — BPOM RI
+                Brand skincare Indonesia — tenang &amp; jujur
+              </p>
+              <p className="italic mt-4 max-w-md text-[15px] leading-relaxed text-[#070707]/70">
+                Kami percaya kulit yang sehat lahir dari kebiasaan kecil
+                yang dilakukan dengan konsisten setiap hari.
               </p>
             </div>
             <div className="absolute bottom-0 inset-x-0 px-4 sm:px-8 pb-5 pt-10 flex items-end justify-between gap-4 furniture text-[#3b3b38]">
-              <span data-rev style={{ ["--d" as string]: "40ms" }}>No. 01 — Pagi &amp; malam</span>
-              <span data-rev className="hidden sm:inline" style={{ ["--d" as string]: "80ms" }}>500 botol per batch</span>
+              <span data-rev style={{ ["--d" as string]: "40ms" }}>SkinSync — Jakarta</span>
+              <span data-rev className="hidden sm:inline" style={{ ["--d" as string]: "80ms" }}>Sejak 2023</span>
               <span data-rev style={{ ["--d" as string]: "120ms" }}> Scroll — 01/03</span>
             </div>
           </div>
         </section>
 
-        {/* ============ 2. REVEAL — bottom-up clip, difference headline (320svh) ============ */}
+        {/* ============ 2. REVEAL — murni brand, tanpa produk (320svh) ============ */}
         <section className="stage" style={{ height: "320svh" }}>
           <div className="stage-pin bg-[#E4E5E0]">
             {revealImg && (
               <div className="reveal-photo absolute inset-0">
-                <Image src={revealImg} alt="Rangkaian SkinSync" fill className="object-cover" unoptimized />
+                <Image src={revealImg} alt="Filosofi SkinSync" fill className="object-cover" unoptimized />
               </div>
             )}
             <h2 className="reveal-headline absolute inset-0 flex items-center justify-center text-center px-6 display-tight text-5xl sm:text-7xl md:text-8xl font-medium">
               <span className="rev-words max-w-5xl">
-                <W text="Cerah yang tenang," /> <em className="italic font-normal"><W text="bukan yang instan." /></em>
+                <W text="Kulit sehat butuh" /> <em className="italic font-normal"><W text="ketenangan, bukan janji." /></em>
               </span>
             </h2>
             <div className="reveal-caption absolute bottom-0 inset-x-0 px-4 sm:px-8 pb-5 flex items-end justify-between furniture">
-              <span className="text-white">Niacinamide 5% — 30 ml</span>
-              <span className="hidden sm:inline text-white">Batch 042 — 500 botol</span>
+              <span className="text-white">SkinSync — jujur soal bahan</span>
+              <span className="hidden sm:inline text-white">Pelan, konsisten, setiap hari</span>
             </div>
           </div>
         </section>
@@ -217,7 +223,7 @@ export default async function HomePage() {
                   Empat menit, <em className="italic font-normal">pagi dan malam.</em>
                 </h2>
                 <div className="mt-10">
-                  {RITUAL.map((s, i) => (
+                  {RITUAL.map((s) => (
                     <div key={s.no} className="ritual-row flex items-baseline gap-4 sm:gap-6 py-4 border-t border-white/25 last:border-b">
                       <span className="furniture text-[#EF6F79] w-8">{s.no}</span>
                       <span className="text-xl sm:text-2xl font-semibold">{s.name}</span>
@@ -229,10 +235,10 @@ export default async function HomePage() {
               </div>
               <div className="relative mx-auto w-full max-w-[420px]">
                 <div className="relative aspect-[4/5] overflow-hidden bg-[#1a1a18]">
-                  {stillImg && <Image src={stillImg} alt="Still produk" fill className="ritual-still object-cover" unoptimized />}
+                  {stillSrc && <Image src={stillSrc} alt="Suasana SkinSync" fill className="ritual-still object-cover" unoptimized />}
                 </div>
                 <span className="absolute bottom-4 left-4 bg-[#EF6F79] text-white furniture px-4 py-2">
-                  Batch 042 — 30 ml
+                  SkinSync — ritual harian
                 </span>
               </div>
             </div>

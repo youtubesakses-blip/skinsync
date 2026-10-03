@@ -75,6 +75,8 @@ export default function ProductRail({
   const stageRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const counterRef = useRef<HTMLSpanElement>(null);
+  // Kartu terakhir adalah CTA "lihat katalog", jadi total = produk + 1
+  const cardCount = products.length + 1;
   const total = String(products.length).padStart(2, "0");
 
   useEffect(() => {
@@ -83,11 +85,12 @@ export default function ProductRail({
     const counter = counterRef.current;
     if (!stage || !track || !counter) return;
 
-    const cards = Array.from(track.children) as HTMLElement[];
     let last = -1;
     let tick = false;
 
     const measure = () => {
+      // Jarak horizontal = lebar track dikurangi 1 viewport.
+      // Track memakai width:max-content + aspect-ratio tetap sehingga stabil.
       const max = Math.max(0, track.scrollWidth - window.innerWidth);
       stage.style.setProperty("--max", String(max));
       stage.style.setProperty("--h", max + window.innerHeight * 1.2 + "px");
@@ -95,6 +98,8 @@ export default function ProductRail({
 
     const update = () => {
       tick = false;
+      const cards = Array.from(track.children) as HTMLElement[];
+      if (cards.length === 0) return;
       const r = stage.getBoundingClientRect();
       const span = Math.max(1, r.height - window.innerHeight);
       const p = Math.min(1, Math.max(0, -r.top / span));
@@ -103,7 +108,12 @@ export default function ProductRail({
       if (i !== last) {
         last = i;
         cards.forEach((c, k) => c.classList.toggle("on", k === i));
-        counter.textContent = String(i + 1).padStart(2, "0") + " / " + total;
+        // Counter: produk 01..05, kartu terakhir tampil sebagai "→"
+        if (i < products.length) {
+          counter.textContent = String(i + 1).padStart(2, "0") + " / " + total;
+        } else {
+          counter.textContent = "→ / " + total;
+        }
       }
     };
 
@@ -120,6 +130,18 @@ export default function ProductRail({
 
     measure();
     update();
+    // Ukur ulang setelah gambar dimuat (scrollWidth berubah saat img muncul)
+    const imgs = Array.from(track.querySelectorAll("img"));
+    const onImg = () => {
+      measure();
+      update();
+    };
+    imgs.forEach((img) => {
+      if (img.complete) return;
+      img.addEventListener("load", onImg);
+    });
+    const ro = new ResizeObserver(onImg);
+    ro.observe(track);
     const t = window.setTimeout(() => {
       measure();
       update();
@@ -127,13 +149,22 @@ export default function ProductRail({
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
     window.addEventListener("load", onResize);
+    // Font Bodoni memengaruhi lebar track — ukur ulang saat fonts siap
+    if (typeof document !== "undefined" && "fonts" in document) {
+      (document as Document).fonts?.ready.then(() => {
+        measure();
+        update();
+      }).catch(() => {});
+    }
     return () => {
       window.clearTimeout(t);
+      ro.disconnect();
+      imgs.forEach((img) => img.removeEventListener("load", onImg));
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
       window.removeEventListener("load", onResize);
     };
-  }, [total]);
+  }, [total, products.length]);
 
   return (
     <section className="rail-stage" id="produk" aria-label="Koleksi harian">
@@ -158,7 +189,7 @@ export default function ProductRail({
               key={p.id}
               className="card"
               data-i={k}
-              style={{ ["--cp" as string]: products.length > 1 ? k / (products.length - 1) : 0 }}
+              style={{ ["--cp" as string]: cardCount > 1 ? k / (cardCount - 1) : 0 }}
             >
               <Link href={`/products/${p.slug}`} aria-label={p.name} className="block">
                 <div className="shot">
@@ -180,6 +211,22 @@ export default function ProductRail({
               </div>
             </article>
           ))}
+
+          {/* Kartu penutup setelah produk ke-5: panah ke katalog */}
+          <Link
+            href="/products"
+            className="card end-card"
+            data-i={products.length}
+            style={{ ["--cp" as string]: 1 }}
+            aria-label="Lihat semua produk di katalog"
+          >
+            <span className="end-arrow" aria-hidden="true">→</span>
+            <span className="end-title display-tight">
+              Lihat <em className="italic font-normal">semua produk</em>
+            </span>
+            <span className="furniture end-sub">Buka katalog — {total} pilihan terkurasi</span>
+            <span className="furniture end-cta">Katalog ↗</span>
+          </Link>
         </div>
 
         <div className="bar" aria-hidden="true">

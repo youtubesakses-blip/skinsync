@@ -250,17 +250,19 @@ body {
   aspect-ratio: 4/5;
   overflow: hidden;
   background: #e9d3c0;
+  transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .shot img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   mix-blend-mode: multiply;
+  /* Parallax digerakkan scroll via --p: tanpa transition agar tidak lag/jitter */
   transform: scale(1.15) translateX(calc((var(--p, 0) - var(--cp, 0)) * -40px));
-  transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
 }
-.card:hover .shot img {
-  transform: scale(1.2) translateX(calc((var(--p, 0) - var(--cp, 0)) * -40px));
+.card:hover .shot {
+  transform: scale(1.015);
 }
 .meta {
   display: grid;
@@ -325,6 +327,46 @@ button.add:hover {
 .card:focus-within {
   outline: 1px solid #070707;
   outline-offset: 4px;
+}
+/* Kartu penutup: panah ke katalog setelah produk ke-5 */
+.end-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 14px;
+  aspect-ratio: 4/5;
+  max-height: 100%;
+  border-top: 1px solid #070707;
+  border-bottom: 1px solid #070707;
+  padding: 32px 8px;
+  text-decoration: none;
+  color: #070707;
+  align-self: center;
+}
+.end-card:hover .end-arrow {
+  transform: translateX(12px);
+}
+.end-arrow {
+  font-size: clamp(4rem, 8vw, 7rem);
+  line-height: 1;
+  font-weight: 400;
+  color: #ef6f79;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.end-title {
+  font-size: clamp(1.8rem, 3.4vw, 3rem);
+  font-weight: 500;
+  max-width: 12ch;
+}
+.end-sub {
+  color: rgba(7, 7, 7, 0.6);
+}
+.end-cta {
+  margin-top: 8px;
+  background: #070707;
+  color: #f7f7f4;
+  padding: 14px 26px;
 }
 .bar {
   position: absolute;
