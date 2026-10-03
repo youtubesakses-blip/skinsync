@@ -167,7 +167,7 @@ export default function ProductRail({
   }, [total, products.length]);
 
   return (
-    <section className="rail-stage" id="produk" aria-label="Koleksi harian">
+    <section ref={stageRef} className="rail-stage" id="produk" aria-label="Koleksi harian">
       <div className="rail-pin">
         <header className="rail-head">
           <h2 className="display-tight text-4xl sm:text-6xl font-medium">
