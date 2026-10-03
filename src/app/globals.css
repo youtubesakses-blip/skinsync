@@ -410,7 +410,7 @@ button.add:hover {
   }
 }
 
-/* ---------- Pattern C: ruled index list + floating preview ---------- */
+/* ---------- Pattern C: ruled index list ---------- */
 .plist {
   position: relative;
   border-bottom: 1px solid #070707;
@@ -457,33 +457,7 @@ button.add:hover {
 .prow .pthumb {
   display: none;
 }
-.ppreview {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 260px;
-  aspect-ratio: 4/5;
-  pointer-events: none;
-  overflow: hidden;
-  background: #e9d3c0;
-  mix-blend-mode: multiply;
-  opacity: 0;
-  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 40;
-}
-.ppreview img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  mix-blend-mode: multiply;
-}
-.plist:hover .ppreview.on {
-  opacity: 1;
-}
 @media (hover: none) {
-  .ppreview {
-    display: none;
-  }
   .prow {
     grid-template-columns: 64px 1fr auto;
     gap: 16px;
@@ -543,9 +517,6 @@ button.add:hover {
     transform: none;
   }
   .bar {
-    display: none;
-  }
-  .ppreview {
     display: none;
   }
 }
