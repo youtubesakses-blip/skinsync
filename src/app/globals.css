@@ -187,10 +187,6 @@ body {
 .ritual-row.lit {
   opacity: 1;
 }
-.ritual-still {
-  transform: scale(calc(1.08 - var(--p, 0) * 0.08));
-  will-change: transform;
-}
 
 /* native details FAQ */
 .faq-row {
@@ -566,8 +562,7 @@ button.add:hover {
   .hero-fade,
   .wordmark-split,
   .wordmark-split .wm-a,
-  .wordmark-split .wm-b,
-  .ritual-still {
+  .wordmark-split .wm-b {
     transform: none !important;
   }
   .hero-photo,

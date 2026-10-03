@@ -1,8 +1,11 @@
 // src/app/account/layout.tsx
+// Layout akun — Aurelle: plaster, hairline, pt-24 agar tidak tertabrak navbar fixed.
+
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import ShopNavbar from "@/components/shop/ShopNavbar";
+import AccountNav from "@/components/account/AccountNav";
 
 export default async function AccountLayout({
   children,
@@ -15,44 +18,53 @@ export default async function AccountLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen flex flex-col bg-[#F7F7F4] text-[#070707]">
       <ShopNavbar session={session} />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Sidebar Menu */}
-          <aside className="md:col-span-1 bg-white p-5 rounded-2xl border border-gray-100 shadow-sm h-fit space-y-4">
-            <div className="border-b pb-4">
-              <p className="text-xs text-gray-400">Akun Pelanggan</p>
-              <h2 className="text-base font-bold text-gray-900 truncate">{session.name}</h2>
-              <p className="text-xs text-gray-500">{session.phone}</p>
-            </div>
+      {/* pt-24 = ruang untuk navbar fixed h-14 + napas editorial */}
+      <main className="flex-1">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-24 pb-20">
+          <p className="furniture text-[#070707]/50 mb-4">
+            <Link href="/" className="hover:italic">
+              Beranda
+            </Link>
+            <span className="mx-2">/</span>
+            <span className="text-[#070707]">Akun</span>
+          </p>
+          <div className="flex items-baseline justify-between gap-4 mb-10">
+            <h1 className="display-tight text-5xl sm:text-6xl font-medium">
+              Akun <em className="italic font-normal">saya.</em>
+            </h1>
+            <Link href="/products" className="furniture underline underline-offset-4 whitespace-nowrap hidden sm:inline">
+              Belanja →
+            </Link>
+          </div>
 
-            <nav className="space-y-1 text-sm font-medium">
-              <Link
-                href="/account"
-                className="block px-3 py-2 rounded-xl text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition"
-              >
-                Profil & Jenis Kulit
-              </Link>
-              <Link
-                href="/account/orders"
-                className="block px-3 py-2 rounded-xl text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition"
-              >
-                Pesanan Saya
-              </Link>
-              <Link
-                href="/account/addresses"
-                className="block px-3 py-2 rounded-xl text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition"
-              >
-                Buku Alamat
-              </Link>
-            </nav>
-          </aside>
+          <div className="grid lg:grid-cols-[240px_1fr] gap-10 items-start">
+            {/* Sidebar */}
+            <aside className="lg:sticky lg:top-20">
+              <p className="furniture text-[#070707]/50 mb-2">Pelanggan</p>
+              <p className="text-xl font-semibold tracking-[-0.01em] truncate">{session.name}</p>
+              <p className="italic text-sm text-[#070707]/55 mb-6">{session.phone}</p>
+              <AccountNav />
+              <p className="italic text-sm text-[#070707]/50 mt-6 leading-relaxed">
+                Data kulit dipakai untuk rekomendasi — bukan untuk iklan.
+              </p>
+            </aside>
 
-          {/* Main Account Content */}
-          <main className="md:col-span-3">{children}</main>
+            {/* Konten */}
+            <div className="min-w-0">{children}</div>
+          </div>
         </div>
-      </div>
+      </main>
+
+      <footer className="bg-[#070707] text-[#F7F7F4]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 py-10">
+          <div className="furniture flex flex-col sm:flex-row justify-between gap-2 text-[#F7F7F4]/50">
+            <p>&copy; {new Date().getFullYear()} SkinSync</p>
+            <p>Batch kecil — BPOM RI — 1–5 hari</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

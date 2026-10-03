@@ -24,23 +24,26 @@ export default async function AccountProfilePage() {
   if (!user) return null;
 
   return (
-    <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
-      <div className="border-b pb-4">
-        <h1 className="text-xl font-extrabold text-gray-900">Profil & Data Kulit</h1>
-        <p className="text-xs text-gray-500 mt-1">
-          Lengkapi data profil dan jenis kulit agar pengalaman belanja skincare Anda lebih personal
-        </p>
-      </div>
+    <section>
+      <p className="furniture text-[#070707]/50 mb-3">Profil — 01</p>
+      <h2 className="display-tight text-3xl sm:text-4xl font-medium">
+        Profil &amp; <em className="italic font-normal">data kulit.</em>
+      </h2>
+      <p className="italic text-[#070707]/60 mt-3 max-w-xl text-[15px] leading-relaxed">
+        Lengkapi jenis kulit agar rekomendasi lebih tepat. Satu menit, tanpa drama.
+      </p>
 
-      <ProfileFormClient
-        user={{
-          name: user.name,
-          phone: user.phone,
-          skinTypeId: user.skinTypeId,
-          allergies: user.allergies,
-        }}
-        skinTypes={skinTypes}
-      />
-    </div>
+      <div className="mt-8 border-t border-[#070707] pt-8">
+        <ProfileFormClient
+          user={{
+            name: user.name,
+            phone: user.phone,
+            skinTypeId: user.skinTypeId,
+            allergies: user.allergies,
+          }}
+          skinTypes={skinTypes}
+        />
+      </div>
+    </section>
   );
 }

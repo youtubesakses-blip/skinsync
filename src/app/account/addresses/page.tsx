@@ -19,15 +19,18 @@ export default async function AccountAddressesPage() {
   });
 
   return (
-    <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
-      <div className="border-b pb-4">
-        <h1 className="text-xl font-extrabold text-gray-900">Buku Alamat</h1>
-        <p className="text-xs text-gray-500 mt-1">
-          Daftar alamat pengiriman Anda untuk kemudahan dan kecepatan proses checkout
-        </p>
-      </div>
+    <section>
+      <p className="furniture text-[#070707]/50 mb-3">Alamat — 03</p>
+      <h2 className="display-tight text-3xl sm:text-4xl font-medium">
+        Buku <em className="italic font-normal">alamat.</em>
+      </h2>
+      <p className="italic text-[#070707]/60 mt-3 max-w-xl text-[15px] leading-relaxed">
+        {addresses.length} alamat tersimpan — checkout jadi satu menit lebih cepat.
+      </p>
 
-      <AddressManagerClient initialAddresses={addresses} />
-    </div>
+      <div className="mt-8 border-t border-[#070707] pt-8">
+        <AddressManagerClient initialAddresses={addresses} />
+      </div>
+    </section>
   );
 }

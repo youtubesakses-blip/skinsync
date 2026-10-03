@@ -17,6 +17,10 @@ interface Address {
   isDefault: boolean;
 }
 
+const inputCls =
+  "w-full bg-transparent border border-[#070707] px-4 py-3 text-[15px] focus:outline-none focus:bg-white placeholder:text-[#070707]/35 placeholder:italic";
+const labelCls = "furniture text-[#070707]/55 block mb-2";
+
 export default function AddressManagerClient({ initialAddresses }: { initialAddresses: Address[] }) {
   const router = useRouter();
   const [addresses, setAddresses] = useState<Address[]>(initialAddresses);
@@ -68,146 +72,155 @@ export default function AddressManagerClient({ initialAddresses }: { initialAddr
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-end">
+    <div className="space-y-8">
+      <div className="flex items-center justify-between gap-4">
+        <p className="furniture text-[#070707]/50">Daftar tersimpan</p>
         <button
           type="button"
           onClick={() => setShowAddForm(!showAddForm)}
-          className="py-2.5 px-4 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition"
+          className={`furniture px-6 py-3 transition-colors ${
+            showAddForm
+              ? "border border-[#070707] hover:italic"
+              : "bg-[#EF6F79] text-[#070707] hover:bg-[#070707] hover:text-white"
+          }`}
         >
-          {showAddForm ? "Batal" : "+ Tambah Alamat Baru"}
+          {showAddForm ? "Batal" : "+ Tambah alamat"}
         </button>
       </div>
 
       {showAddForm && (
-        <form onSubmit={handleAddAddress} className="p-5 bg-gray-50 rounded-2xl border space-y-4">
-          <h2 className="text-sm font-bold text-gray-900">Form Alamat Pengiriman Baru</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+        <form onSubmit={handleAddAddress} className="border border-[#070707] p-5 sm:p-8 space-y-5 bg-[#F1F1ED]">
+          <p className="furniture">Alamat baru</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
-              <label className="block font-medium text-gray-700 mb-1">Label Alamat</label>
+              <label className={labelCls}>Label alamat</label>
               <input
                 type="text"
                 required
                 value={newAddr.label}
                 onChange={(e) => setNewAddr({ ...newAddr, label: e.target.value })}
-                placeholder="Contoh: Rumah, Kantor"
-                className="w-full p-2.5 border rounded-lg bg-white"
+                placeholder="Rumah, kantor…"
+                className={inputCls}
               />
             </div>
             <div>
-              <label className="block font-medium text-gray-700 mb-1">Nama Penerima</label>
+              <label className={labelCls}>Nama penerima</label>
               <input
                 type="text"
                 required
                 value={newAddr.recipientName}
                 onChange={(e) => setNewAddr({ ...newAddr, recipientName: e.target.value })}
-                className="w-full p-2.5 border rounded-lg bg-white"
+                placeholder="Nama lengkap"
+                className={inputCls}
               />
             </div>
             <div>
-              <label className="block font-medium text-gray-700 mb-1">Nomor WhatsApp Penerima</label>
+              <label className={labelCls}>WhatsApp penerima</label>
               <input
                 type="tel"
                 required
                 value={newAddr.phone}
                 onChange={(e) => setNewAddr({ ...newAddr, phone: e.target.value })}
                 placeholder="08xxxxxxxxxx"
-                className="w-full p-2.5 border rounded-lg bg-white"
+                className={inputCls}
               />
             </div>
             <div>
-              <label className="block font-medium text-gray-700 mb-1">Provinsi</label>
+              <label className={labelCls}>Provinsi</label>
               <input
                 type="text"
                 required
                 value={newAddr.province}
                 onChange={(e) => setNewAddr({ ...newAddr, province: e.target.value })}
-                className="w-full p-2.5 border rounded-lg bg-white"
+                className={inputCls}
               />
             </div>
             <div>
-              <label className="block font-medium text-gray-700 mb-1">Kota / Kabupaten</label>
+              <label className={labelCls}>Kota / kabupaten</label>
               <input
                 type="text"
                 required
                 value={newAddr.city}
                 onChange={(e) => setNewAddr({ ...newAddr, city: e.target.value })}
-                className="w-full p-2.5 border rounded-lg bg-white"
+                className={inputCls}
               />
             </div>
             <div>
-              <label className="block font-medium text-gray-700 mb-1">Kecamatan & Kode Pos</label>
-              <div className="flex gap-2">
+              <label className={labelCls}>Kecamatan &amp; kode pos</label>
+              <div className="flex gap-3">
                 <input
                   type="text"
                   required
                   placeholder="Kecamatan"
                   value={newAddr.district}
                   onChange={(e) => setNewAddr({ ...newAddr, district: e.target.value })}
-                  className="w-2/3 p-2.5 border rounded-lg bg-white"
+                  className={`${inputCls} w-2/3`}
                 />
                 <input
                   type="text"
                   required
-                  placeholder="Kode Pos"
+                  placeholder="Kode pos"
                   value={newAddr.postalCode}
                   onChange={(e) => setNewAddr({ ...newAddr, postalCode: e.target.value })}
-                  className="w-1/3 p-2.5 border rounded-lg bg-white"
+                  className={`${inputCls} w-1/3`}
                 />
               </div>
             </div>
           </div>
-          <div className="text-xs">
-            <label className="block font-medium text-gray-700 mb-1">Alamat Lengkap</label>
+          <div>
+            <label className={labelCls}>Alamat lengkap</label>
             <textarea
               required
               rows={2}
               value={newAddr.addressLine}
               onChange={(e) => setNewAddr({ ...newAddr, addressLine: e.target.value })}
-              placeholder="Nama jalan, nomor rumah/ruko, patokan..."
-              className="w-full p-2.5 border rounded-lg bg-white"
+              placeholder="Nama jalan, nomor rumah, patokan…"
+              className={inputCls}
             />
           </div>
-          <div className="flex items-center gap-2 text-xs">
+          <label className="flex items-center gap-3 text-[15px] cursor-pointer">
             <input
               type="checkbox"
               id="setDefault"
               checked={newAddr.isDefault}
               onChange={(e) => setNewAddr({ ...newAddr, isDefault: e.target.checked })}
-              className="rounded text-indigo-600"
+              className="h-4 w-4 accent-[#070707]"
             />
-            <label htmlFor="setDefault" className="text-gray-700">Jadikan alamat utama</label>
-          </div>
+            Jadikan alamat utama
+          </label>
           <button
             type="submit"
             disabled={loading}
-            className="py-2.5 px-6 bg-indigo-600 text-white rounded-lg text-xs font-bold hover:bg-indigo-700 transition"
+            className="furniture bg-[#070707] text-white px-6 py-3.5 hover:bg-[#EF6F79] hover:text-[#070707] transition-colors disabled:opacity-40"
           >
-            {loading ? "Menyimpan..." : "Simpan Alamat"}
+            {loading ? "Menyimpan…" : "Simpan alamat"}
           </button>
         </form>
       )}
 
-      {addresses.length === 0 ? (
-        <div className="text-center py-12 text-gray-400 text-xs">
-          Belum ada alamat pengiriman yang tersimpan.
-        </div>
+      {addresses.length === 0 && !showAddForm ? (
+        <p className="italic text-[#070707]/60 py-10 border-y border-[#070707]/15 text-center">
+          Belum ada alamat tersimpan.
+        </p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {addresses.map((a) => (
-            <div key={a.id} className="p-4 rounded-xl border border-gray-200 bg-white space-y-1 text-xs relative">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-gray-900 text-sm">{a.label}</span>
-                {a.isDefault && (
-                  <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-bold text-[10px]">
-                    Utama
-                  </span>
-                )}
+        <div className="border-t border-[#070707]">
+          {addresses.map((a, i) => (
+            <div key={a.id} className="py-5 border-b border-[#070707]/15 flex gap-4">
+              <span className="furniture text-[#EF6F79] w-8 shrink-0">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <div className="text-[15px] space-y-1">
+                <div className="flex flex-wrap items-baseline gap-x-3">
+                  <span className="font-semibold text-lg">{a.label}</span>
+                  {a.isDefault && (
+                    <span className="furniture border border-[#070707] px-2 py-0.5">Utama</span>
+                  )}
+                </div>
+                <p className="font-medium">{a.recipientName} <span className="italic text-[#070707]/55">({a.phone})</span></p>
+                <p className="italic text-[#070707]/60 leading-relaxed">
+                  {a.addressLine}, {a.district}, {a.city}, {a.province} {a.postalCode}
+                </p>
               </div>
-              <p className="font-semibold text-gray-800">{a.recipientName} ({a.phone})</p>
-              <p className="text-gray-600 leading-relaxed">
-                {a.addressLine}, {a.district}, {a.city}, {a.province} {a.postalCode}
-              </p>
             </div>
           ))}
         </div>

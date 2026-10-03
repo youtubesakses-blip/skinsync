@@ -19,6 +19,10 @@ interface ProfileFormClientProps {
   skinTypes: SkinType[];
 }
 
+const inputCls =
+  "w-full bg-transparent border border-[#070707] px-4 py-3 text-[15px] focus:outline-none focus:bg-white placeholder:text-[#070707]/35 placeholder:italic";
+const labelCls = "furniture text-[#070707]/55 block mb-2";
+
 export default function ProfileFormClient({ user, skinTypes }: ProfileFormClientProps) {
   const router = useRouter();
   const [name, setName] = useState(user.name);
@@ -47,7 +51,7 @@ export default function ProfileFormClient({ user, skinTypes }: ProfileFormClient
       if (!res.ok) {
         setMessage({ text: data.error || "Gagal memperbarui profil", type: "error" });
       } else {
-        setMessage({ text: "Profil berhasil diperbarui!", type: "success" });
+        setMessage({ text: "Profil berhasil diperbarui.", type: "success" });
         router.refresh();
       }
     } catch {
@@ -58,78 +62,82 @@ export default function ProfileFormClient({ user, skinTypes }: ProfileFormClient
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-6 max-w-xl">
       {message && (
-        <div
-          className={`p-3 rounded-xl text-xs font-semibold ${
+        <p
+          className={`border px-4 py-3 text-sm italic ${
             message.type === "success"
-              ? "bg-green-50 text-green-700 border border-green-200"
-              : "bg-red-50 text-red-700 border border-red-200"
+              ? "border-[#070707] text-[#070707]"
+              : "border-[#EF6F79] text-[#EF6F79]"
           }`}
         >
           {message.text}
-        </div>
+        </p>
       )}
 
       <div>
-        <label className="block text-xs font-medium text-gray-700 mb-1">Nomor WhatsApp (Terverifikasi)</label>
+        <label className={labelCls}>Nomor WhatsApp — terverifikasi</label>
         <input
           type="text"
           disabled
           value={user.phone}
-          className="w-full text-xs p-3 border rounded-xl bg-gray-100 text-gray-500 cursor-not-allowed"
+          className="w-full bg-[#E4E5E0] border border-[#070707]/30 px-4 py-3 text-[15px] text-[#070707]/50 cursor-not-allowed"
         />
-        <p className="text-[11px] text-gray-400 mt-1">Nomor telepon terhubung dengan akun WhatsApp Anda.</p>
+        <p className="italic text-sm text-[#070707]/50 mt-1">Terhubung dengan akun WhatsApp Anda.</p>
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-gray-700 mb-1">Nama Lengkap</label>
+        <label className={labelCls} htmlFor="acc-name">Nama lengkap</label>
         <input
+          id="acc-name"
           type="text"
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Nama Anda"
-          className="w-full text-xs p-3 border rounded-xl bg-white focus:ring-1 focus:ring-indigo-500 outline-none"
+          className={inputCls}
         />
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-gray-700 mb-1">Jenis Kulit Anda</label>
+        <label className={labelCls} htmlFor="acc-skin">Jenis kulit</label>
         <select
+          id="acc-skin"
           value={skinTypeId}
           onChange={(e) => setSkinTypeId(e.target.value ? Number(e.target.value) : "")}
-          className="w-full text-xs p-3 border rounded-xl bg-white focus:ring-1 focus:ring-indigo-500 outline-none"
+          className={`${inputCls} appearance-none`}
         >
-          <option value="">Pilih Jenis Kulit (Opsional)</option>
+          <option value="">Pilih jenis kulit (opsional)</option>
           {skinTypes.map((st) => (
             <option key={st.id} value={st.id}>
               {st.name}
             </option>
           ))}
         </select>
-        <p className="text-[11px] text-gray-400 mt-1">
-          Membantu kami merekomendasikan produk skincare yang paling tepat untuk Anda.
+        <p className="italic text-sm text-[#070707]/50 mt-1">
+          Membantu kami merekomendasikan produk yang paling tepat.
         </p>
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-gray-700 mb-1">Riwayat Alergi / Sensitivitas Bahan (Opsional)</label>
+        <label className={labelCls} htmlFor="acc-alg">Riwayat alergi — opsional</label>
         <textarea
+          id="acc-alg"
           rows={3}
           value={allergies}
           onChange={(e) => setAllergies(e.target.value)}
-          placeholder="Contoh: Alergi fragrance sintetis, alkohol tinggi, dsb."
-          className="w-full text-xs p-3 border rounded-xl bg-white focus:ring-1 focus:ring-indigo-500 outline-none"
+          placeholder="Contoh: alergi fragrance sintetis, alkohol tinggi…"
+          className={inputCls}
         />
       </div>
 
+      {/* Satu tombol pink per tampilan */}
       <button
         type="submit"
         disabled={loading}
-        className="py-3 px-6 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 transition disabled:opacity-40 shadow-sm"
+        className="furniture bg-[#EF6F79] text-[#070707] px-6 py-3.5 hover:bg-[#070707] hover:text-white transition-colors disabled:opacity-40"
       >
-        {loading ? "Menyimpan..." : "Simpan Perubahan"}
+        {loading ? "Menyimpan…" : "Simpan perubahan"}
       </button>
     </form>
   );

@@ -10,6 +10,16 @@ export const metadata: Metadata = {
   description: "Lihat status dan riwayat semua pesanan skincare Anda.",
 };
 
+const STATUS_LABEL: Record<string, string> = {
+  PENDING_PAYMENT: "Menunggu pembayaran",
+  PAID: "Dibayar",
+  PROCESSING: "Diproses",
+  SHIPPED: "Dikirim",
+  COMPLETED: "Selesai",
+  EXPIRED: "Kedaluwarsa",
+  CANCELLED: "Dibatalkan",
+};
+
 export default async function CustomerOrdersPage() {
   const session = await getSession();
   if (!session) return null;
@@ -23,101 +33,83 @@ export default async function CustomerOrdersPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "PENDING_PAYMENT":
-        return <span className="px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 font-bold text-[11px] border border-amber-200">Menunggu Pembayaran</span>;
-      case "PAID":
-        return <span className="px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 font-bold text-[11px] border border-blue-200">Dibayar</span>;
-      case "PROCESSING":
-        return <span className="px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 font-bold text-[11px] border border-purple-200">Diproses</span>;
-      case "SHIPPED":
-        return <span className="px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 font-bold text-[11px] border border-indigo-200">Sedang Dikirim</span>;
-      case "COMPLETED":
-        return <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 font-bold text-[11px] border border-emerald-200">Selesai</span>;
-      case "EXPIRED":
-        return <span className="px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 font-bold text-[11px]">Kedaluwarsa</span>;
-      case "CANCELLED":
-        return <span className="px-2.5 py-1 rounded-full bg-red-50 text-red-700 font-bold text-[11px]">Dibatalkan</span>;
-      default:
-        return null;
-    }
-  };
-
   return (
-    <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
-      <div className="border-b pb-4">
-        <h1 className="text-xl font-extrabold text-gray-900">Pesanan Saya</h1>
-        <p className="text-xs text-gray-500 mt-1">
-          Lacak status pemrosesan dan pengiriman produk yang Anda pesan
-        </p>
-      </div>
+    <section>
+      <p className="furniture text-[#070707]/50 mb-3">Pesanan — 02</p>
+      <h2 className="display-tight text-3xl sm:text-4xl font-medium">
+        Pesanan <em className="italic font-normal">saya.</em>
+      </h2>
+      <p className="italic text-[#070707]/60 mt-3 max-w-xl text-[15px] leading-relaxed">
+        {orders.length > 0
+          ? `${orders.length} pesanan — resi dikirim via WhatsApp.`
+          : "Belum ada pesanan — mulai dari yang paling ringan."}
+      </p>
 
-      {orders.length === 0 ? (
-        <div className="text-center py-16 space-y-3">
-          <p className="text-sm text-gray-400">Anda belum memiliki riwayat pesanan.</p>
-          <Link
-            href="/products"
-            className="inline-block py-2.5 px-6 rounded-xl bg-indigo-600 text-white font-bold text-xs hover:bg-indigo-700 transition"
-          >
-            Mulai Belanja Sekarang
-          </Link>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {orders.map((order) => {
+      <div className="mt-8 border-t border-[#070707]">
+        {orders.length === 0 ? (
+          <div className="py-16 text-center border-b border-[#070707]">
+            <p className="italic text-xl text-[#070707]/60">Anda belum memiliki riwayat pesanan.</p>
+            <Link
+              href="/products"
+              className="furniture inline-block mt-6 bg-[#EF6F79] text-[#070707] px-6 py-3.5 hover:bg-[#070707] hover:text-white transition-colors"
+            >
+              Mulai belanja
+            </Link>
+          </div>
+        ) : (
+          orders.map((order, i) => {
             const firstItem = order.items[0];
             const remainingCount = order.items.length - 1;
-
             return (
-              <div
+              <article
                 key={order.id}
-                className="border border-gray-200 rounded-2xl p-5 hover:border-gray-300 transition space-y-4"
+                className="py-5 border-b border-[#070707]/15 grid gap-3"
               >
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-3 text-xs">
-                  <div>
-                    <span className="font-extrabold text-gray-900 text-sm">{order.orderNumber}</span>
-                    <span className="text-gray-400 ml-2">
-                      {new Date(order.createdAt).toLocaleDateString("id-ID", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })}
-                    </span>
-                  </div>
-                  <div>{getStatusBadge(order.status)}</div>
+                <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                  <span className="furniture text-[#EF6F79] w-8 shrink-0">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="font-semibold text-lg tracking-[-0.01em]">{order.orderNumber}</span>
+                  <span className="italic text-sm text-[#070707]/55">
+                    {new Date(order.createdAt).toLocaleDateString("id-ID", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </span>
+                  <span className="ml-auto furniture border border-[#070707] px-3 py-1.5">
+                    {STATUS_LABEL[order.status] ?? order.status}
+                  </span>
                 </div>
 
-                <div className="flex items-center justify-between text-xs">
-                  <div className="space-y-1">
-                    <p className="font-bold text-gray-800">
-                      {firstItem?.productName} ({firstItem?.variantName}) x {firstItem?.qty}
+                <div className="flex flex-wrap items-baseline justify-between gap-2 pl-12">
+                  <div>
+                    <p className="text-[15px]">
+                      {firstItem?.productName}{" "}
+                      <span className="italic text-[#070707]/60">
+                        ({firstItem?.variantName}) × {firstItem?.qty}
+                      </span>
                     </p>
                     {remainingCount > 0 && (
-                      <p className="text-gray-400">+{remainingCount} produk lainnya</p>
+                      <p className="italic text-sm text-[#070707]/50">+{remainingCount} produk lainnya</p>
                     )}
                   </div>
-                  <div className="text-right">
-                    <span className="text-gray-500 block">Total Pesanan:</span>
-                    <span className="text-sm font-extrabold text-indigo-600">
-                      {formatRupiah(order.grandTotal)}
-                    </span>
-                  </div>
+                  <p className="text-lg font-semibold text-[#EF6F79]">{formatRupiah(order.grandTotal)}</p>
                 </div>
 
-                <div className="flex justify-end pt-2">
+                <div className="pl-12">
                   <Link
                     href={`/account/orders/${order.orderNumber}`}
-                    className="py-2 px-4 rounded-xl border border-indigo-600 text-indigo-600 font-bold text-xs hover:bg-indigo-50 transition"
+                    className="furniture underline underline-offset-4 hover:italic"
                   >
-                    Lihat Rincian & Riwayat →
+                    Lihat rincian →
                   </Link>
                 </div>
-              </div>
+              </article>
             );
-          })}
-        </div>
-      )}
-    </div>
+          })
+        )}
+      </div>
+    </section>
   );
 }

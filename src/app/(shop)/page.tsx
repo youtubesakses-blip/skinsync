@@ -79,10 +79,8 @@ export default async function HomePage() {
   ]);
 
   // Hero pakai satu image statis: public/assets/hero.png (jangan pakai foto/nama produk apapun).
-  // Reveal & ritual boleh pakai banner brand. Kalau tidak ada banner, tampilkan tanpa foto.
+  // Reveal boleh pakai banner brand. Kalau tidak ada banner, tampilkan tanpa foto.
   const revealImg = banners[1] ? imageUrl(banners[1].imageKey) : null;
-  const stillImg = banners[2] ?? banners[0] ?? null;
-  const stillSrc = stillImg ? imageUrl(stillImg.imageKey) : null;
 
   const railProducts: RailProduct[] = featuredProducts.map((p, i) => {
     const v = p.variants[0];
@@ -213,7 +211,7 @@ export default async function HomePage() {
         {/* ============ 4. RITUAL — near-black (360svh) ============ */}
         <section id="ritual" className="stage bg-[#070707] text-[#F7F7F4]" data-ritual style={{ height: "360svh" }}>
           <div className="stage-pin bg-[#070707] text-[#F7F7F4]">
-            <div className="h-full max-w-7xl mx-auto px-4 sm:px-8 py-20 md:py-0 grid md:grid-cols-2 gap-10 items-center">
+            <div className="h-full max-w-3xl mx-auto px-4 sm:px-8 py-20 md:py-0 flex flex-col justify-center">
               <div>
                 <p className="furniture text-[#F7F7F4]/50 mb-6">Ritual — 02</p>
                 <h2 className="display-tight text-4xl sm:text-6xl font-medium">
@@ -229,14 +227,6 @@ export default async function HomePage() {
                   ))}
                   <p className="italic text-sm text-[#F7F7F4]/60 mt-4 max-w-md">{RITUAL[0].desc} Scroll untuk menyalakan tiap baris.</p>
                 </div>
-              </div>
-              <div className="relative mx-auto w-full max-w-[420px]">
-                <div className="relative aspect-[4/5] overflow-hidden bg-[#1a1a18]">
-                  {stillSrc && <Image src={stillSrc} alt="Suasana SkinSync" fill className="ritual-still object-cover" unoptimized />}
-                </div>
-                <span className="absolute bottom-4 left-4 bg-[#EF6F79] text-white furniture px-4 py-2">
-                  SkinSync — ritual harian
-                </span>
               </div>
             </div>
           </div>

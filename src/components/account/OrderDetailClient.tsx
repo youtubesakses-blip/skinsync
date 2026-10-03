@@ -138,79 +138,77 @@ export default function OrderDetailClient({
   };
 
   return (
-    <div className="space-y-4">
-      {/* Pay Now Button if PENDING_PAYMENT */}
+    <div className="space-y-8">
+      {/* Pay Now — hairline, satu tombol pink */}
       {orderStatus === "PENDING_PAYMENT" && (
-        <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="border border-[#070707] p-5 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
           <div>
-            <p className="text-xs font-bold text-amber-900">Menunggu Pembayaran</p>
-            <p className="text-[11px] text-amber-700">Selesaikan pembayaran dalam 24 jam sebelum pesanan kedaluwarsa.</p>
-            {payError && <p className="text-[11px] text-red-600 font-semibold mt-1">{payError}</p>}
+            <p className="furniture mb-1">Menunggu pembayaran</p>
+            <p className="italic text-sm text-[#070707]/60">Selesaikan dalam 24 jam sebelum kedaluwarsa.</p>
+            {payError && <p className="italic text-sm text-[#EF6F79] mt-1">{payError}</p>}
           </div>
           <button
             type="button"
             onClick={handlePayNow}
             disabled={paying}
-            className="py-2.5 px-6 rounded-xl bg-amber-600 text-white font-extrabold text-xs hover:bg-amber-700 transition shadow-sm w-full sm:w-auto disabled:opacity-50"
+            className="furniture bg-[#EF6F79] text-[#070707] px-6 py-3.5 hover:bg-[#070707] hover:text-white transition-colors whitespace-nowrap disabled:opacity-50"
           >
-            {paying ? "Membuat Link Bayar..." : "Bayar Sekarang →"}
+            {paying ? "Membuat link…" : "Bayar sekarang →"}
           </button>
         </div>
       )}
 
-      {/* Reviews Form for Completed Order Items */}
+      {/* Reviews — ruled rows, tanpa bintang warna-warni */}
       {orderStatus === "COMPLETED" && (
-        <div className="pt-2">
+        <div>
           {reviewSuccess && (
-            <div className="mb-4 p-3 rounded-xl bg-green-50 text-green-800 text-xs font-semibold border border-green-200">
-              {reviewSuccess}
-            </div>
+            <p className="border border-[#070707] px-4 py-3 text-sm italic mb-5">{reviewSuccess}</p>
           )}
 
-          <div className="space-y-3">
-            <h3 className="text-xs font-bold text-gray-800 uppercase tracking-wider">Beri Ulasan Produk:</h3>
-            <div className="space-y-2">
-              {items.map((item) => (
-                <div
-                  key={item.id}
-                  className="p-3 bg-gray-50 rounded-xl border border-gray-100 flex items-center justify-between text-xs"
-                >
-                  <span className="font-semibold text-gray-800">{item.productName} ({item.variantName})</span>
-                  {item.hasReview ? (
-                    <span className="text-emerald-600 font-bold text-[11px]">✓ Ulasan Terkirim</span>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setReviewingItemId(item.id);
-                        setReviewError(null);
-                      }}
-                      className="px-3 py-1.5 rounded-lg bg-indigo-600 text-white font-bold text-[11px] hover:bg-indigo-700 transition"
-                    >
-                      Tulis Ulasan
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
+          <p className="furniture text-[#070707]/50 mb-2">Beri ulasan</p>
+          <div className="border-t border-[#070707]">
+            {items.map((item, i) => (
+              <div
+                key={item.id}
+                className="py-4 border-b border-[#070707]/15 flex flex-wrap items-baseline justify-between gap-2 text-[15px]"
+              >
+                <p>
+                  <span className="furniture text-[#EF6F79] mr-3">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="font-semibold">{item.productName}</span>{" "}
+                  <span className="italic text-[#070707]/55">({item.variantName})</span>
+                </p>
+                {item.hasReview ? (
+                  <span className="italic text-sm text-[#070707]/55">Ulasan terkirim</span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setReviewingItemId(item.id);
+                      setReviewError(null);
+                    }}
+                    className="furniture underline underline-offset-4 hover:italic"
+                  >
+                    Tulis ulasan
+                  </button>
+                )}
+              </div>
+            ))}
           </div>
 
-          {/* Modal / Inline Review Form */}
           {reviewingItemId && (
-            <form onSubmit={handleSendReview} className="mt-4 p-4 bg-white rounded-xl border-2 border-indigo-200 space-y-3">
-              <h4 className="text-xs font-bold text-gray-900">
-                Tulis Ulasan Anda
-              </h4>
-              {reviewError && <p className="text-xs text-red-600">{reviewError}</p>}
+            <form onSubmit={handleSendReview} className="mt-5 border border-[#070707] bg-[#F1F1ED] p-5 space-y-4">
+              <p className="furniture">Tulis ulasan Anda</p>
+              {reviewError && <p className="italic text-sm text-[#EF6F79]">{reviewError}</p>}
               <div>
-                <label className="block text-[11px] text-gray-600 mb-1">Rating Bintang (1 - 5):</label>
-                <div className="flex gap-2">
+                <label className="furniture text-[#070707]/55 block mb-2">Rating — {rating}/5</label>
+                <div className="flex gap-1">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
                       key={star}
                       type="button"
                       onClick={() => setRating(star)}
-                      className={`text-lg transition ${star <= rating ? "text-amber-400" : "text-gray-300"}`}
+                      aria-label={`${star} bintang`}
+                      className={`text-2xl leading-none transition-opacity ${star <= rating ? "text-[#070707]" : "text-[#070707]/25"}`}
                     >
                       ★
                     </button>
@@ -218,27 +216,27 @@ export default function OrderDetailClient({
                 </div>
               </div>
               <div>
-                <label className="block text-[11px] text-gray-600 mb-1">Kesan Penggunaan (Opsional):</label>
+                <label className="furniture text-[#070707]/55 block mb-2">Kesan penggunaan — opsional</label>
                 <textarea
                   rows={2}
                   value={body}
                   onChange={(e) => setBody(e.target.value)}
-                  placeholder="Ceritakan pengalaman Anda menggunakan produk ini..."
-                  className="w-full text-xs p-2.5 border rounded-lg"
+                  placeholder="Ceritakan pengalaman Anda…"
+                  className="w-full bg-transparent border border-[#070707] px-4 py-3 text-[15px] focus:outline-none focus:bg-white placeholder:text-[#070707]/35 placeholder:italic"
                 />
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-3">
                 <button
                   type="submit"
                   disabled={loading}
-                  className="py-2 px-4 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition disabled:opacity-50"
+                  className="furniture bg-[#070707] text-white px-6 py-3 hover:bg-[#EF6F79] hover:text-[#070707] transition-colors disabled:opacity-50"
                 >
-                  {loading ? "Mengirim..." : "Kirim Ulasan"}
+                  {loading ? "Mengirim…" : "Kirim ulasan"}
                 </button>
                 <button
                   type="button"
                   onClick={() => setReviewingItemId(null)}
-                  className="py-2 px-4 bg-gray-100 text-gray-700 text-xs font-semibold rounded-lg hover:bg-gray-200 transition"
+                  className="furniture px-6 py-3 border border-[#070707] hover:italic"
                 >
                   Batal
                 </button>
