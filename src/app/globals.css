@@ -128,104 +128,17 @@ body {
   overflow: hidden;
 }
 
-/* hero portal — satu image, dikendalikan --p dari AurelleChoreo (lihat skinsync-hero-prompt.md) */
-.hero-pin {
-  background: #f7f7f4;
-}
-.hero-img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+/* hero — teks dulu saat load, image /assets/hero.png muncul pas scroll */
+.hero-photo {
   mix-blend-mode: multiply;
+  opacity: clamp(0, calc((var(--p, 0) - 0.1) / 0.4), 1);
   transform: scale(calc(1.12 - min(var(--p, 0) / 0.5, 1) * 0.12));
-  will-change: transform;
+  will-change: transform, opacity;
 }
-.duo {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, #070707 0%, #ef6f79 100%);
-  mix-blend-mode: color;
-  opacity: calc(min(var(--p, 0) / 0.5, 1) * 0.22);
-  pointer-events: none;
-}
-.mark {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  white-space: nowrap;
-  font-weight: 600;
-  line-height: 0.8;
-  font-size: min(clamp(3.5rem, 30vw, 18rem), calc(88vw / (8 * 0.6)));
-  --t: clamp(0, calc((var(--p, 0) - 0.3) / 0.7), 1);
-  letter-spacing: calc(-0.02em - var(--t) * 0.05em);
-  transform: scale(calc(1 + var(--t) * 0.12));
-  will-change: transform;
-}
-.mark .a,
-.mark .b {
-  display: inline-block;
-  will-change: transform;
-}
-.mark .a {
-  transform: translateX(calc(var(--t) * -50%));
-}
-.mark .b {
-  transform: translateX(calc(var(--t) * 50%));
-}
-.panel {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 50.5vw;
-  background: #f7f7f4;
-  --o: min(var(--p, 0) / 0.5, 1);
-  pointer-events: none;
-}
-.panel.l {
-  left: 0;
-  transform: translateX(calc(var(--o) * -105%));
-}
-.panel.r {
-  right: 0;
-  transform: translateX(calc(var(--o) * 105%));
-}
-.dot {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 10px;
-  height: 10px;
-  background: #ef6f79;
-  border-radius: 50%;
-  --o: min(var(--p, 0) / 0.5, 1);
-  pointer-events: none;
-}
-.d1 {
-  transform: translate(calc(var(--o) * -42vw), calc(var(--o) * -38vh));
-}
-.d2 {
-  transform: translate(calc(var(--o) * 42vw), calc(var(--o) * 38vh));
-}
-.straps {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0 2rem 1.25rem;
-  font-size: 10.5px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  font-weight: 500;
-  line-height: 1.4;
-  color: #3b3b38;
+.hero-type {
+  opacity: calc(1 - var(--p, 0) * 1.9);
+  transform: translateY(calc(var(--p, 0) * -46px));
+  will-change: transform, opacity;
 }
 
 /* reveal stage */
@@ -624,25 +537,17 @@ button.add:hover {
     transform: none !important;
     transition: none !important;
   }
-  .hero-img,
-  .mark,
-  .mark .a,
-  .mark .b,
-  .dot,
+  .hero-photo,
+  .hero-type,
   .ritual-still {
     transform: none !important;
   }
-  .hero-img {
+  .hero-photo {
+    opacity: 1 !important;
     scale: 1;
   }
-  .panel {
-    display: none !important;
-  }
-  .duo {
-    opacity: 0 !important;
-  }
-  .mark {
-    letter-spacing: normal !important;
+  .hero-type {
+    opacity: 1 !important;
   }
   .reveal-photo {
     clip-path: none !important;
