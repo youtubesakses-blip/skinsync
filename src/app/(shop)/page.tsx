@@ -46,18 +46,7 @@ const FAQS = [
 ];
 
 export default async function HomePage() {
-  const now = new Date();
-
-  const [banners, categories, featuredProducts, session] = await Promise.all([
-    db.banner.findMany({
-      where: {
-        isActive: true,
-        OR: [{ startsAt: null }, { startsAt: { lte: now } }],
-        AND: [{ OR: [{ endsAt: null }, { endsAt: { gte: now } }] }],
-      },
-      orderBy: { sortOrder: "asc" },
-      take: 5,
-    }),
+  const [categories, featuredProducts, session] = await Promise.all([
     db.category.findMany({
       where: { isActive: true },
       orderBy: { sortOrder: "asc" },
@@ -79,8 +68,8 @@ export default async function HomePage() {
   ]);
 
   // Hero pakai satu image statis: public/assets/hero.png (jangan pakai foto/nama produk apapun).
-  // Reveal boleh pakai banner brand. Kalau tidak ada banner, tampilkan tanpa foto.
-  const revealImg = banners[1] ? imageUrl(banners[1].imageKey) : null;
+  // Section Reveal murni brand, tanpa foto.
+  const revealImg: string | null = null;
 
   const railProducts: RailProduct[] = featuredProducts.map((p, i) => {
     const v = p.variants[0];

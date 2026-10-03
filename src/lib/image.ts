@@ -10,7 +10,6 @@ export { imageUrl } from "./image-url";
 // Ukuran maksimal per kategori gambar (lebar dalam piksel)
 const MAX_WIDTHS = {
   product: 1200,
-  banner: 1600,
   brand: 400,
 } as const;
 

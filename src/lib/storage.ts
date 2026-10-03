@@ -5,7 +5,7 @@
 import { createClient } from "@supabase/supabase-js";
 
 // Prefix key yang diizinkan (whitelist untuk mencegah path traversal)
-export const ALLOWED_KEY_PREFIXES = ["products/", "brands/", "banners/"] as const;
+export const ALLOWED_KEY_PREFIXES = ["products/", "brands/"] as const;
 export type AllowedPrefix = (typeof ALLOWED_KEY_PREFIXES)[number];
 
 function getSupabaseClient() {

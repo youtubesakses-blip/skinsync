@@ -384,17 +384,6 @@ model Review {
   orderItem   OrderItem    @relation(fields: [orderItemId], references: [id])
 }
 
-model Banner {
-  id        Int      @id @default(autoincrement())
-  title     String
-  imageKey  String                // key di bucket
-  linkUrl   String?
-  sortOrder Int      @default(0)
-  startsAt  DateTime?
-  endsAt    DateTime?
-  isActive  Boolean  @default(true)
-}
-
 model NotificationLog {
   id               Int         @id @default(autoincrement())
   orderId          Int?

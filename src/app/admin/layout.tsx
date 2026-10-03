@@ -25,7 +25,6 @@ export default async function AdminLayout({
     { label: "Manajemen Stok", href: "/admin/stock", icon: "📋" },
     { label: "Zona Ongkir", href: "/admin/shipping-zones", icon: "🚚" },
     { label: "Voucher Diskon", href: "/admin/vouchers", icon: "🎟️" },
-    { label: "Banner Promo", href: "/admin/banners", icon: "🖼️" },
     { label: "Moderasi Ulasan", href: "/admin/reviews", icon: "⭐" },
   ];
 

@@ -37,7 +37,6 @@ export async function POST(request: NextRequest) {
   // Tentukan prefix berdasarkan imageType
   const prefixMap: Record<string, string> = {
     product: "products",
-    banner: "banners",
     brand: "brands",
   };
   const prefix = prefixMap[imageType] ?? "products";
