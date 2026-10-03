@@ -78,9 +78,8 @@ export default async function HomePage() {
     getSession(),
   ]);
 
-  // Layar 1 & 2 murni brand — jangan pakai foto/nama produk apapun.
-  // Hanya banner brand (bukan produk). Kalau tidak ada banner, tampilkan tanpa foto.
-  const heroImg = banners[0] ? imageUrl(banners[0].imageKey) : null;
+  // Hero pakai satu image statis: public/assets/hero.png (jangan pakai foto/nama produk apapun).
+  // Reveal & ritual boleh pakai banner brand. Kalau tidak ada banner, tampilkan tanpa foto.
   const revealImg = banners[1] ? imageUrl(banners[1].imageKey) : null;
   const stillImg = banners[2] ?? banners[0] ?? null;
   const stillSrc = stillImg ? imageUrl(stillImg.imageKey) : null;
@@ -104,39 +103,31 @@ export default async function HomePage() {
   return (
     <AurelleChoreo>
       <div className="bg-[#F7F7F4] text-[#070707]">
-        {/* ============ 1. HERO — murni brand SkinSync, tanpa produk (300svh) ============ */}
-        <section className="stage" style={{ height: "300svh" }}>
-          <div className="stage-pin bg-[#F7F7F4]">
-            {heroImg && (
-              <div className="hero-photo absolute inset-0">
-                <Image src={heroImg} alt="SkinSync — perawatan kulit harian" fill className="object-cover" priority unoptimized />
-              </div>
-            )}
-            <div className="hero-type absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
-              <span
-                className="script-accent text-2xl md:text-3xl mb-4"
-                style={{ transform: "rotate(-2deg)" }}
-              >
-                merawat kulit, merawat diri
-              </span>
-              <h1
-                className="wordmark"
-                style={{ fontSize: "min(clamp(3.5rem, 34vw, 20rem), calc(88vw / (8 * .60)))" }}
-              >
-                SKINSYNC
-              </h1>
-              <p className="furniture mt-6 text-[#3b3b38]">
-                Brand skincare Indonesia — tenang &amp; jujur
-              </p>
-              <p className="italic mt-4 max-w-md text-[15px] leading-relaxed text-[#070707]/70">
-                Kami percaya kulit yang sehat lahir dari kebiasaan kecil
-                yang dilakukan dengan konsisten setiap hari.
-              </p>
-            </div>
-            <div className="absolute bottom-0 inset-x-0 px-4 sm:px-8 pb-5 pt-10 flex items-end justify-between gap-4 furniture text-[#3b3b38]">
-              <span data-rev style={{ ["--d" as string]: "40ms" }}>SkinSync — Jakarta</span>
-              <span data-rev className="hidden sm:inline" style={{ ["--d" as string]: "80ms" }}>Sejak 2023</span>
-              <span data-rev style={{ ["--d" as string]: "120ms" }}> Scroll — 01/03</span>
+        {/* ============ 1. HERO — SkinSync portal (300svh, lihat skinsync-hero-prompt.md) ============ */}
+        <section className="stage" id="hero" style={{ height: "300svh" }}>
+          <div className="stage-pin hero-pin">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className="hero-img"
+              src="/assets/hero.png"
+              alt="SkinSync serum bottle on a pale surface"
+              width={2400}
+              height={1600}
+              fetchPriority="high"
+            />
+            <div className="duo" aria-hidden="true" />
+            <h1 className="mark" aria-label="SkinSync">
+              <span className="a" aria-hidden="true">Skin</span>
+              <span className="b" aria-hidden="true">Sync</span>
+            </h1>
+            <i className="panel l" aria-hidden="true" />
+            <i className="panel r" aria-hidden="true" />
+            <b className="dot d1" aria-hidden="true" />
+            <b className="dot d2" aria-hidden="true" />
+            <div className="straps">
+              <span>Personalised skincare</span>
+              <span className="hidden sm:inline">Dermatologically tested</span>
+              <span>Scroll</span>
             </div>
           </div>
         </section>
