@@ -5,7 +5,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { SessionPayload } from "@/lib/auth";
 
 interface ShopNavbarProps {
@@ -22,6 +22,16 @@ const LINKS: [string, string][] = [
 export default function ShopNavbar({ session }: ShopNavbarProps) {
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 24);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -37,8 +47,18 @@ export default function ShopNavbar({ session }: ShopNavbarProps) {
   const isAdmin = session?.role === "ADMIN" || session?.role === "SUPER_ADMIN";
 
   return (
-    <div className="fixed top-0 inset-x-0 z-50 mix-blend-difference text-white">
-      <div className="furniture flex items-center justify-between px-4 sm:px-8 h-14 border-b border-white/40">
+    <div
+      className={`fixed top-0 inset-x-0 z-50 transition-colors duration-300 ${
+        scrolled
+          ? "bg-[#F7F7F4] text-[#070707]"
+          : "mix-blend-difference text-white bg-transparent"
+      }`}
+    >
+      <div
+        className={`furniture flex items-center justify-between px-4 sm:px-8 h-14 border-b transition-colors duration-300 ${
+          scrolled ? "border-[#070707]" : "border-white/40"
+        }`}
+      >
         <Link href="/" className="font-semibold tracking-[0.18em]">
           SKINSYNC
         </Link>
