@@ -24,7 +24,7 @@ const FAQS = [
   },
   {
     q: "Berapa lama pengiriman?",
-    a: "Jabodetabek 1–2 hari kerja, Pulau Jawa 2–3 hari, luar Jawa 3–5 hari. Resi dikirim otomatis via WhatsApp.",
+    a: "Surabaya & Jawa Timur 1–2 hari kerja, Pulau Jawa 2–3 hari, luar Jawa 3–5 hari. Resi dikirim otomatis via WhatsApp.",
   },
   {
     q: "Mengapa OTP tidak masuk?",

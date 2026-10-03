@@ -105,29 +105,29 @@ async function main() {
   // 6. Shipping Zones (Tarif flat per zona sesuai Bagian 1 & 6.3)
   const shippingZonesData = [
     {
-      name: "DKI Jakarta & Sekitarnya (Flat)",
-      province: "DKI Jakarta",
+      name: "Surabaya & Jawa Timur (Flat)",
+      province: "Jawa Timur",
       city: null, // Berlaku seluruh provinsi
       cost: 10000,
       estimatedDays: "1-2 Hari Kerja",
     },
     {
-      name: "Jawa Barat (Flat)",
-      province: "Jawa Barat",
+      name: "Jawa Tengah & DIY (Flat)",
+      province: "Jawa Tengah",
       city: null,
       cost: 12000,
       estimatedDays: "2-3 Hari Kerja",
     },
     {
-      name: "Jawa Tengah & DIY (Flat)",
-      province: "Jawa Tengah",
+      name: "Jawa Barat (Flat)",
+      province: "Jawa Barat",
       city: null,
       cost: 15000,
       estimatedDays: "2-3 Hari Kerja",
     },
     {
-      name: "Jawa Timur (Flat)",
-      province: "Jawa Timur",
+      name: "DKI Jakarta & Sekitarnya (Flat)",
+      province: "DKI Jakarta",
       city: null,
       cost: 18000,
       estimatedDays: "2-4 Hari Kerja",

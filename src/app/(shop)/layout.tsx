@@ -19,7 +19,7 @@ export default async function ShopLayout({
       <footer className="bg-[#070707] text-[#F7F7F4]">
         <div className="max-w-7xl mx-auto px-4 sm:px-8 pt-16 pb-8">
           <div className="furniture flex flex-wrap gap-x-8 gap-y-2 text-[#F7F7F4]/60 pb-8">
-            <span>No. 01 — Jakarta</span>
+            <span>No. 01 — Surabaya</span>
             <span>Batch kecil</span>
             <span>BPOM RI</span>
           </div>

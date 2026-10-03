@@ -99,10 +99,10 @@ export default function CheckoutClient({
     label: "Rumah",
     recipientName: "",
     phone: "",
-    province: "DKI Jakarta",
-    city: "Jakarta Selatan",
-    district: "Kebayoran Baru",
-    postalCode: "12110",
+    province: "Jawa Timur",
+    city: "Surabaya",
+    district: "Genteng",
+    postalCode: "60275",
     addressLine: "",
   });
 

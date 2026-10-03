@@ -41,7 +41,7 @@ const RITUAL = [
 const FAQS = [
   { q: "Apakah semua produk terdaftar BPOM?", a: "Ya. Nomor registrasi tercantum di setiap halaman produk. Batch 042: NA18241900127." },
   { q: "Berapa lama satu botol habis?", a: "Botol 30 ml untuk pemakaian 3–4 tetes, dua kali sehari, habis dalam 6–8 minggu." },
-  { q: "Berapa lama pengiriman?", a: "Jabodetabek 1–2 hari kerja, Pulau Jawa 2–3 hari, luar Jawa 3–5 hari. Resi dikirim via WhatsApp." },
+  { q: "Berapa lama pengiriman?", a: "Surabaya & Jawa Timur 1–2 hari kerja, Pulau Jawa 2–3 hari, luar Jawa 3–5 hari. Resi dikirim via WhatsApp." },
   { q: "Bagaimana cara membayar?", a: "Midtrans: QRIS, virtual account, kartu kredit. Batas pembayaran 24 jam." },
 ];
 
@@ -118,7 +118,7 @@ export default async function HomePage() {
               </p>
             </div>
             <div className="absolute bottom-0 inset-x-0 px-4 sm:px-8 pb-5 pt-10 flex items-end justify-between gap-4 furniture text-[#3b3b38]">
-              <span data-rev style={{ ["--d" as string]: "40ms" }}>SkinSync — Jakarta</span>
+              <span data-rev style={{ ["--d" as string]: "40ms" }}>SkinSync — Surabaya</span>
               <span data-rev className="hidden sm:inline" style={{ ["--d" as string]: "80ms" }}>Sejak 2023</span>
               <span data-rev style={{ ["--d" as string]: "120ms" }}> Scroll — 01/03</span>
             </div>
