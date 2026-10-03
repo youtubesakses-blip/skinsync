@@ -136,9 +136,33 @@ body {
   will-change: transform, opacity;
 }
 .hero-type {
-  opacity: calc(1 - var(--p, 0) * 1.9);
   transform: translateY(calc(var(--p, 0) * -46px));
+  will-change: transform;
+}
+/* teks pendukung cepat memudar, judul tetap lalu terbelah */
+.hero-fade {
+  opacity: calc(1 - var(--p, 0) * 2.4);
+  will-change: opacity;
+}
+.wordmark-split {
+  --t: clamp(0, calc((var(--p, 0) - 0.15) / 0.55), 1);
+  display: flex;
+  justify-content: center;
+  letter-spacing: calc(-0.02em - var(--t) * 0.05em);
+  transform: scale(calc(1 + var(--t) * 0.12));
+  opacity: clamp(0, calc(1 - (var(--p, 0) - 0.8) * 5), 1);
   will-change: transform, opacity;
+}
+.wordmark-split .wm-a,
+.wordmark-split .wm-b {
+  display: inline-block;
+  will-change: transform;
+}
+.wordmark-split .wm-a {
+  transform: translateX(calc(var(--t) * -50%));
+}
+.wordmark-split .wm-b {
+  transform: translateX(calc(var(--t) * 50%));
 }
 
 /* reveal stage */
@@ -539,15 +563,21 @@ button.add:hover {
   }
   .hero-photo,
   .hero-type,
+  .hero-fade,
+  .wordmark-split,
+  .wordmark-split .wm-a,
+  .wordmark-split .wm-b,
   .ritual-still {
     transform: none !important;
   }
-  .hero-photo {
+  .hero-photo,
+  .hero-type,
+  .hero-fade,
+  .wordmark-split {
     opacity: 1 !important;
-    scale: 1;
   }
-  .hero-type {
-    opacity: 1 !important;
+  .wordmark-split {
+    letter-spacing: normal !important;
   }
   .reveal-photo {
     clip-path: none !important;

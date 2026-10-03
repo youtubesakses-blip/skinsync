@@ -111,21 +111,21 @@ export default async function HomePage() {
             </div>
             <div className="hero-type absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
               <span
-                className="script-accent text-2xl md:text-3xl mb-4"
+                className="hero-fade script-accent text-2xl md:text-3xl mb-4"
                 style={{ transform: "rotate(-2deg)" }}
               >
                 merawat kulit, merawat diri
               </span>
               <h1
-                className="wordmark"
+                className="wordmark wordmark-split"
                 style={{ fontSize: "min(clamp(3.5rem, 34vw, 20rem), calc(88vw / (8 * .60)))" }}
               >
-                SKINSYNC
+                <span className="wm-a">SKIN</span><span className="wm-b">SYNC</span>
               </h1>
-              <p className="furniture mt-6 text-[#3b3b38]">
+              <p className="hero-fade furniture mt-6 text-[#3b3b38]">
                 Brand skincare Indonesia — tenang &amp; jujur
               </p>
-              <p className="italic mt-4 max-w-md text-[15px] leading-relaxed text-[#070707]/70">
+              <p className="hero-fade italic mt-4 max-w-md text-[15px] leading-relaxed text-[#070707]/70">
                 Kami percaya kulit yang sehat lahir dari kebiasaan kecil
                 yang dilakukan dengan konsisten setiap hari.
               </p>
