@@ -5,6 +5,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import type { SessionPayload } from "@/lib/auth";
 
 interface ShopNavbarProps {
@@ -13,11 +14,25 @@ interface ShopNavbarProps {
 
 export default function ShopNavbar({ session }: ShopNavbarProps) {
   const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState("");
 
   const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.refresh();
-    router.push("/");
+    setIsLoggingOut(true);
+    setLogoutError("");
+
+    try {
+      const response = await fetch("/api/auth/logout", { method: "POST" });
+      if (!response.ok) {
+        throw new Error("Logout gagal. Silakan coba lagi.");
+      }
+
+      router.replace("/");
+      router.refresh();
+    } catch {
+      setLogoutError("Logout gagal. Silakan coba lagi.");
+      setIsLoggingOut(false);
+    }
   };
 
   const isAdmin = session?.role === "ADMIN" || session?.role === "SUPER_ADMIN";
@@ -112,10 +127,16 @@ export default function ShopNavbar({ session }: ShopNavbarProps) {
                   </Link>
                   <button
                     onClick={handleLogout}
+                    disabled={isLoggingOut}
                     className="text-sm text-[#2a1220]/50 hover:text-red-600 transition px-1"
                   >
-                    Keluar
+                    {isLoggingOut ? "Keluar..." : "Keluar"}
                   </button>
+                  {logoutError && (
+                    <span role="alert" className="text-xs text-red-600">
+                      {logoutError}
+                    </span>
+                  )}
                 </div>
               ) : (
                 <>
