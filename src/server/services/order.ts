@@ -21,6 +21,19 @@ function generateOrderNumber(): string {
 }
 
 /**
+ * Base URL aplikasi tanpa trailing slash agar tidak menghasilkan "//" di link WA.
+ * APP_URL di Railway sering diisi dengan trailing slash (mis. "...up.railway.app/").
+ */
+function getAppBaseUrl(): string {
+  const raw = process.env.APP_URL ?? "http://localhost:3000";
+  return raw.replace(/\/+$/, "");
+}
+
+export function buildOrderUrl(orderNumber: string): string {
+  return `${getAppBaseUrl()}/account/orders/${orderNumber}`;
+}
+
+/**
  * Format datetime ke WIB untuk pesan WA.
  */
 function formatDateWIB(date: Date): string {
@@ -215,39 +228,39 @@ export async function createOrder(params: CreateOrderParams) {
     return newOrder;
   });
 
-  // Setelah transaksi: buat transaksi Midtrans Snap
+  // Setelah transaksi: buat transaksi Midtrans Snap (batas bayar tetap 24 jam)
   let snapToken: string | undefined;
   let redirectUrl: string | undefined;
+  let midtransError: string | undefined;
+
+  // start_time Midtrans harus WAKTU SEKARANG (bukan expiresAt), format "yyyy-MM-dd HH:mm:ss +0700"
+  const nowForMidtrans = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const startTimeStr =
+    `${nowForMidtrans.getFullYear()}-${pad(nowForMidtrans.getMonth() + 1)}-${pad(nowForMidtrans.getDate())} ` +
+    `${pad(nowForMidtrans.getHours())}:${pad(nowForMidtrans.getMinutes())}:${pad(nowForMidtrans.getSeconds())} +0700`;
 
   try {
-    const user = await db.user.findUnique({ where: { id: userId } });
-    const expiresAt = order.expiresAt;
-    const expireStr = expiresAt
-      .toISOString()
-      .replace("T", " ")
-      .replace(/\.\d+Z$/, " +0000");
+    const orderUser = await db.user.findUnique({ where: { id: userId } });
 
-    const items = await db.orderItem.findMany({ where: { orderId: order.id } });
-
+    // SENGAJA tanpa item_details: Midtrans memvalidasi
+    // gross_amount == sum(item price*qty) dan batas panjang nama item.
+    // Ongkir + diskon membuat rincian sulit balance (harga negatif tidak diterima),
+    // sehingga request selalu ditolak. Tanpa item_details, Snap hanya pakai
+    // gross_amount dan halaman bayar tetap tampil normal (nama merchant + total).
     const snapResponse = await createSnapTransaction({
       transaction_details: {
         order_id: order.orderNumber,
         gross_amount: order.grandTotal,
       },
-      item_details: items.map((i) => ({
-        id: i.variantId.toString(),
-        name: `${i.productName} - ${i.variantName}`,
-        price: i.price,
-        quantity: i.qty,
-      })),
       customer_details: {
-        first_name: user?.name ?? "Pelanggan",
-        phone: user?.phone ?? "",
+        first_name: (orderUser?.name ?? "Pelanggan").slice(0, 20),
+        phone: orderUser?.phone ?? "",
       },
       expiry: {
-        start_time: expireStr,
-        unit: "hour",
-        duration: expiryHours,
+        start_time: startTimeStr,
+        unit: "hour" as const,
+        duration: 24,
       },
     });
 
@@ -267,11 +280,27 @@ export async function createOrder(params: CreateOrderParams) {
       },
     });
   } catch (error) {
+    midtransError = error instanceof Error ? error.message : "Gagal membuat transaksi Midtrans";
     console.error("[order] Gagal membuat transaksi Midtrans:", error);
-    // Payment gagal — order tetap ada, user bisa bayar manual lewat halaman pesanan
+    // Tetap buat Payment PENDING tanpa token agar user bisa retry dari halaman pesanan.
+    try {
+      await db.payment.create({
+        data: {
+          orderId: order.id,
+          midtransOrderId: order.orderNumber,
+          amount: order.grandTotal,
+          status: "PENDING",
+          expiresAt: order.expiresAt,
+        },
+      });
+    } catch (dbErr) {
+      console.error("[order] Gagal membuat Payment fallback:", dbErr);
+    }
   }
 
-  // Kirim notifikasi WA
+  // Kirim notifikasi WA (batas bayar tetap 24 jam).
+  // paymentUrl pakai buildOrderUrl agar tidak ada "//" ganda yang bikin 404.
+  // Prioritas link pembayaran Midtrans langsung (tanpa login), fallback ke halaman order.
   const user = await db.user.findUnique({ where: { id: userId } });
   if (user) {
     await sendWhatsApp(
@@ -282,13 +311,13 @@ export async function createOrder(params: CreateOrderParams) {
         orderNumber: order.orderNumber,
         total: formatRupiah(order.grandTotal),
         expiresAt: formatDateWIB(order.expiresAt),
-        paymentUrl: redirectUrl ?? `${process.env.APP_URL}/account/orders/${order.orderNumber}`,
+        paymentUrl: redirectUrl ?? buildOrderUrl(order.orderNumber),
       },
       order.id
     );
   }
 
-  return { order, snapToken, redirectUrl };
+  return { order, snapToken, redirectUrl, midtransError };
 }
 
 /**

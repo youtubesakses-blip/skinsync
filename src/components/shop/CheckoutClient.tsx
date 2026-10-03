@@ -217,7 +217,14 @@ export default function CheckoutClient({
         return;
       }
 
-      const { orderNumber, snapToken, redirectUrl } = data;
+      const { orderNumber, snapToken, redirectUrl, midtransError } = data;
+
+      // Jika Midtrans gagal dibuat, tetap arahkan ke halaman order (ada tombol retry).
+      // Tampilkan info agar user tahu harus klik Bayar Sekarang di sana.
+      if (midtransError && !snapToken && !redirectUrl) {
+        router.push(`/account/orders/${orderNumber}`);
+        return;
+      }
 
       // Jika ada Midtrans Snap di window
       if (snapToken && window.snap) {

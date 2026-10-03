@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
       orderNumber: result.order.orderNumber,
       snapToken: result.snapToken,
       redirectUrl: result.redirectUrl,
+      midtransError: result.midtransError ?? null,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Gagal membuat pesanan";

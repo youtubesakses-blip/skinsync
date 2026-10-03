@@ -21,6 +21,7 @@ declare global {
 }
 
 interface OrderDetailClientProps {
+  orderNumber: string;
   orderStatus: string;
   snapToken?: string | null;
   redirectUrl?: string | null;
@@ -33,6 +34,7 @@ interface OrderDetailClientProps {
 }
 
 export default function OrderDetailClient({
+  orderNumber,
   orderStatus,
   snapToken,
   redirectUrl,
@@ -45,17 +47,61 @@ export default function OrderDetailClient({
   const [loading, setLoading] = useState<boolean>(false);
   const [reviewSuccess, setReviewSuccess] = useState<string | null>(null);
   const [reviewError, setReviewError] = useState<string | null>(null);
+  const [paying, setPaying] = useState<boolean>(false);
+  const [payError, setPayError] = useState<string | null>(null);
 
-  const handlePayNow = () => {
-    if (snapToken && window.snap) {
-      window.snap.pay(snapToken, {
+  const openSnap = (token: string, fallbackUrl?: string | null) => {
+    if (window.snap) {
+      window.snap.pay(token, {
         onSuccess: () => router.refresh(),
         onPending: () => router.refresh(),
         onError: () => router.refresh(),
         onClose: () => router.refresh(),
       });
-    } else if (redirectUrl) {
+    } else if (fallbackUrl) {
+      window.location.href = fallbackUrl;
+    } else if (token) {
+      // Snap script belum termuat — muat lalu buka popup
+      const script = document.createElement("script");
+      script.src = "https://app.sandbox.midtrans.com/snap/snap.js";
+      script.onload = () => {
+        if (window.snap) {
+          window.snap.pay(token, { onClose: () => router.refresh() });
+        }
+      };
+      document.body.appendChild(script);
+    }
+  };
+
+  const handlePayNow = async () => {
+    setPayError(null);
+    // Token sudah ada → langsung buka popup / redirect
+    if (snapToken) {
+      openSnap(snapToken, redirectUrl);
+      return;
+    }
+    if (redirectUrl && !snapToken) {
       window.location.href = redirectUrl;
+      return;
+    }
+    // Token belum ada (Midtrans sempat gagal saat checkout) → regenerasi via API
+    setPaying(true);
+    try {
+      const res = await fetch(`/api/orders/${orderNumber}/pay`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        setPayError(data.error || "Gagal membuat link pembayaran. Coba lagi.");
+        return;
+      }
+      if (data.snapToken) {
+        openSnap(data.snapToken, data.redirectUrl);
+      } else if (data.redirectUrl) {
+        window.location.href = data.redirectUrl;
+      }
+    } catch {
+      setPayError("Terjadi kesalahan jaringan. Coba lagi.");
+    } finally {
+      setPaying(false);
     }
   };
 
@@ -98,14 +144,16 @@ export default function OrderDetailClient({
         <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div>
             <p className="text-xs font-bold text-amber-900">Menunggu Pembayaran</p>
-            <p className="text-[11px] text-amber-700">Segera selesaikan pembayaran sebelum pesanan kedaluwarsa.</p>
+            <p className="text-[11px] text-amber-700">Selesaikan pembayaran dalam 24 jam sebelum pesanan kedaluwarsa.</p>
+            {payError && <p className="text-[11px] text-red-600 font-semibold mt-1">{payError}</p>}
           </div>
           <button
             type="button"
             onClick={handlePayNow}
-            className="py-2.5 px-6 rounded-xl bg-amber-600 text-white font-extrabold text-xs hover:bg-amber-700 transition shadow-sm w-full sm:w-auto"
+            disabled={paying}
+            className="py-2.5 px-6 rounded-xl bg-amber-600 text-white font-extrabold text-xs hover:bg-amber-700 transition shadow-sm w-full sm:w-auto disabled:opacity-50"
           >
-            Bayar Sekarang →
+            {paying ? "Membuat Link Bayar..." : "Bayar Sekarang →"}
           </button>
         </div>
       )}

@@ -1,10 +1,12 @@
 // src/app/account/orders/[orderNumber]/page.tsx
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { formatRupiah } from "@/lib/money";
+import { getMidtransSnapScriptUrl } from "@/lib/midtrans";
 import OrderDetailClient from "@/components/account/OrderDetailClient";
 import Link from "next/link";
+import Script from "next/script";
 import type { Metadata } from "next";
 
 interface OrderDetailPageProps {
@@ -19,7 +21,9 @@ export async function generateMetadata({ params }: OrderDetailPageProps): Promis
 export default async function CustomerOrderDetailPage({ params }: OrderDetailPageProps) {
   const { orderNumber } = await params;
   const session = await getSession();
-  if (!session) return null;
+  if (!session) {
+    redirect(`/login?next=/account/orders/${orderNumber}`);
+  }
 
   const order = await db.order.findUnique({
     where: { orderNumber },
@@ -37,9 +41,15 @@ export default async function CustomerOrderDetailPage({ params }: OrderDetailPag
   }
 
   const latestPayment = order.payments[0];
+  const isProduction = process.env.MIDTRANS_IS_PRODUCTION === "true";
 
   return (
     <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+      <Script
+        src={getMidtransSnapScriptUrl(isProduction)}
+        data-client-key={process.env.MIDTRANS_CLIENT_KEY ?? ""}
+        strategy="lazyOnload"
+      />
       {/* Top Bar */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-4">
         <div>
@@ -70,6 +80,7 @@ export default async function CustomerOrderDetailPage({ params }: OrderDetailPag
 
       {/* Interactive Pay / Review Section */}
       <OrderDetailClient
+        orderNumber={order.orderNumber}
         orderStatus={order.status}
         snapToken={latestPayment?.snapToken}
         redirectUrl={latestPayment?.redirectUrl}
