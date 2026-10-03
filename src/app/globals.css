@@ -586,3 +586,664 @@ button.add:hover {
     opacity: 1 !important;
   }
 }
+
+/* ============================================================
+   SkinSync Dashboard — Aurelle Didone system, adapted for data
+   No cards, no shadows, no gradients, no icons, no emoji.
+   Hairline 1px rules instead of boxes. Radius 0 everywhere.
+   ============================================================ */
+
+:root {
+  --dash-ground: #f7f7f4;
+  --dash-paper: #f1f1ed;
+  --dash-paper-2: #e4e5e0;
+  --dash-blush: #f3d6dc;
+  --dash-ink: #070707;
+  --dash-sage: #b7baa9;
+  --dash-accent: #ef6f79;
+  --dash-accent-deep: #c94b56;
+  --dash-furniture: #6b6b66;
+  --dash-rule: 1px solid #070707;
+  --dash-rule-soft: 1px solid rgba(7, 7, 7, 0.18);
+  --dash-grid: rgba(7, 7, 7, 0.12);
+  --dash-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --dash-danger: #b3261e;
+}
+
+:root[data-theme="dark"] {
+  --dash-ground: #070707;
+  --dash-paper: #141414;
+  --dash-paper-2: #1c1c1a;
+  --dash-blush: #2a2023;
+  --dash-ink: #f7f7f4;
+  --dash-sage: #b7baa9;
+  --dash-furniture: #a9a9a3;
+  --dash-rule: 1px solid rgba(247, 247, 244, 0.85);
+  --dash-rule-soft: 1px solid rgba(247, 247, 244, 0.3);
+  --dash-grid: rgba(247, 247, 244, 0.14);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --dash-ground: #070707;
+    --dash-paper: #141414;
+    --dash-paper-2: #1c1c1a;
+    --dash-blush: #2a2023;
+    --dash-ink: #f7f7f4;
+    --dash-furniture: #a9a9a3;
+    --dash-rule: 1px solid rgba(247, 247, 244, 0.85);
+    --dash-rule-soft: 1px solid rgba(247, 247, 244, 0.3);
+    --dash-grid: rgba(247, 247, 244, 0.14);
+  }
+}
+
+/* ---------- shell ---------- */
+.dash-shell {
+  min-height: 100svh;
+  background: var(--dash-ground);
+  color: var(--dash-ink);
+  font-family: var(--font-bodoni), "Bodoni Moda", Didot, Georgia, serif;
+  font-optical-sizing: auto;
+}
+
+.dash-rail {
+  width: 232px;
+  flex-shrink: 0;
+  border-right: var(--dash-rule);
+  background: var(--dash-ground);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  height: 100svh;
+}
+
+.dash-brand {
+  display: block;
+  padding: 28px 28px 24px;
+  border-bottom: var(--dash-rule);
+  text-decoration: none;
+  color: var(--dash-ink);
+}
+
+.dash-brand .wordmark-sm {
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 0.9;
+  font-variation-settings: "opsz" 96;
+}
+
+.dash-nav {
+  padding: 20px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dash-nav a {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 9px 0;
+  min-height: 44px;
+  text-decoration: none;
+  color: var(--dash-ink);
+  font-size: 14.5px;
+  font-weight: 500;
+  font-variation-settings: "opsz" 8;
+  border-bottom: 1px solid transparent;
+  transition: color 200ms var(--dash-ease), opacity 200ms var(--dash-ease);
+}
+
+.dash-nav a .idx {
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  font-weight: 500;
+  color: var(--dash-accent-deep);
+  flex-shrink: 0;
+}
+
+.dash-nav a:hover {
+  font-style: italic;
+}
+
+.dash-nav a[aria-current="page"] {
+  font-style: italic;
+  border-bottom: var(--dash-rule);
+}
+
+.dash-rail-foot {
+  border-top: var(--dash-rule);
+  padding: 20px 28px;
+}
+
+.dash-topbar {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 20;
+  background: var(--dash-ground);
+  border-bottom: var(--dash-rule);
+}
+
+.dash-content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 40px 32px 80px;
+  width: 100%;
+}
+
+.dash-section {
+  border-top: var(--dash-rule);
+  padding-top: 24px;
+  margin-top: 56px;
+}
+
+.dash-section:first-child {
+  border-top: 0;
+  padding-top: 0;
+  margin-top: 0;
+}
+
+/* ---------- type ---------- */
+.dash-title {
+  font-size: clamp(40px, 4.5vw, 56px);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+  font-variation-settings: "opsz" 96;
+  text-wrap: balance;
+}
+
+.dash-title em {
+  font-style: italic;
+  font-weight: 400;
+}
+
+.dash-h2 {
+  font-size: clamp(24px, 2.4vw, 28px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-variation-settings: "opsz" 60;
+}
+
+.dash-furniture {
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--dash-furniture);
+  font-variation-settings: "opsz" 6;
+}
+
+.dash-body {
+  font-size: 14.5px;
+  line-height: 1.6;
+  font-variation-settings: "opsz" 10;
+}
+
+.dash-nums {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* ---------- KPI strip: figures divided by hairlines, not boxes ---------- */
+.dash-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: var(--dash-rule);
+  border-bottom: var(--dash-rule);
+}
+
+.dash-kpi {
+  padding: 24px 28px 22px;
+}
+
+.dash-kpi + .dash-kpi {
+  border-left: var(--dash-rule-soft);
+}
+
+.dash-kpi .fig {
+  font-size: clamp(34px, 3.6vw, 56px);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  font-variation-settings: "opsz" 96;
+  font-variant-numeric: tabular-nums lining-nums;
+  margin: 10px 0 8px;
+}
+
+.dash-kpi:first-child .fig {
+  color: var(--dash-accent-deep);
+}
+
+.dash-kpi .delta {
+  font-style: italic;
+  font-size: 13.5px;
+  color: var(--dash-ink);
+  opacity: 0.75;
+}
+
+/* ---------- chart: flat, hairline grid, no fill ---------- */
+.dash-chart {
+  border-top: var(--dash-rule);
+  margin-top: 0;
+  padding-top: 24px;
+}
+
+.dash-chart-frame {
+  border: var(--dash-rule-soft);
+  border-radius: 0;
+  background: transparent;
+  padding: 20px 20px 12px;
+}
+
+.dash-chart-frame svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.dash-tip {
+  background: var(--dash-ground);
+  border: 1px solid var(--dash-ink);
+  border-radius: 0;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-style: italic;
+}
+
+/* ---------- ruled table: the core component ---------- */
+table.dash-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14.5px;
+  font-variation-settings: "opsz" 10;
+}
+
+.dash-table thead th {
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--dash-furniture);
+  text-align: left;
+  padding: 0 16px 12px 0;
+  border-bottom: var(--dash-rule);
+  white-space: nowrap;
+  font-variation-settings: "opsz" 6;
+}
+
+.dash-table thead th:last-child,
+.dash-table tbody td:last-child {
+  padding-right: 0;
+}
+
+.dash-table tbody td {
+  padding: 0 16px 0 0;
+  height: 56px;
+  vertical-align: middle;
+  border-bottom: var(--dash-rule-soft);
+}
+
+.dash-table tbody tr {
+  transition: background-color 200ms var(--dash-ease);
+}
+
+.dash-table tbody tr:hover {
+  background: rgba(243, 214, 220, 0.4);
+}
+
+.dash-table tbody tr:hover td:first-child {
+  font-style: italic;
+}
+
+.dash-table tr.is-selected td {
+  background: var(--dash-blush);
+}
+
+.dash-table .c-idx {
+  color: var(--dash-accent-deep);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  white-space: nowrap;
+}
+
+.dash-table .c-name {
+  font-weight: 600;
+}
+
+.dash-table .c-note {
+  font-style: italic;
+  opacity: 0.65;
+  font-size: 13.5px;
+  display: block;
+}
+
+.dash-table .c-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums lining-nums;
+  white-space: nowrap;
+}
+
+.dash-table .c-price {
+  text-align: right;
+  font-weight: 600;
+  color: var(--dash-accent-deep);
+  font-variant-numeric: tabular-nums lining-nums;
+  white-space: nowrap;
+}
+
+.dash-table a.rowlink {
+  color: inherit;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.dash-table a.rowlink:hover {
+  font-style: italic;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* ---------- status: typography, never colour alone ---------- */
+.st {
+  font-size: 13.5px;
+  white-space: nowrap;
+}
+
+.st--selesai {
+  text-decoration: underline;
+  text-decoration-color: var(--dash-sage);
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+
+.st--proses {
+  font-style: italic;
+}
+
+.st--tunggu {
+  color: var(--dash-furniture);
+}
+
+.st--batal {
+  text-decoration: line-through;
+}
+
+.st--aksi {
+  color: var(--dash-accent-deep);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+
+/* ---------- product thumb plate ---------- */
+.dash-thumb {
+  width: 48px;
+  height: 60px;
+  aspect-ratio: 4/5;
+  background: #e9d3c0;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.dash-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: multiply;
+}
+
+:root[data-theme="dark"] .dash-thumb img {
+  mix-blend-mode: normal;
+}
+
+/* ---------- forms: underline inputs ---------- */
+.dash-field label {
+  display: block;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--dash-furniture);
+  margin-bottom: 2px;
+}
+
+.dash-field input,
+.dash-field select {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  border-bottom: var(--dash-rule);
+  border-radius: 0;
+  min-height: 44px;
+  font: inherit;
+  font-size: 15px;
+  color: var(--dash-ink);
+  padding: 8px 0;
+}
+
+.dash-field input:focus,
+.dash-field select:focus {
+  outline: none;
+  border-bottom-width: 2px;
+}
+
+.dash-field input:focus-visible,
+.dash-field select:focus-visible,
+.dash-nav a:focus-visible,
+.dash-btn:focus-visible {
+  outline: 1px solid var(--dash-ink);
+  outline-offset: 4px;
+}
+
+.dash-err {
+  font-style: italic;
+  font-size: 13px;
+  margin-top: 6px;
+  color: var(--dash-danger);
+}
+
+/* ---------- buttons: one pink primary per view ---------- */
+.dash-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 0;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 14px 26px;
+  min-height: 44px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 200ms var(--dash-ease), color 200ms var(--dash-ease), opacity 200ms var(--dash-ease);
+  font-family: inherit;
+}
+
+.dash-btn-primary {
+  background: var(--dash-accent);
+  color: #070707;
+  border: 1px solid var(--dash-accent);
+}
+
+.dash-btn-primary:hover {
+  background: var(--dash-ink);
+  border-color: var(--dash-ink);
+  color: var(--dash-ground);
+}
+
+.dash-btn-secondary {
+  background: transparent;
+  color: var(--dash-ink);
+  border: 1px solid var(--dash-ink);
+}
+
+.dash-btn-secondary:hover {
+  font-style: italic;
+}
+
+.dash-btn-tertiary {
+  background: transparent;
+  border: 0;
+  padding-left: 0;
+  padding-right: 0;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--dash-ink);
+}
+
+/* ---------- dialog / drawer / toast / empty / loading ---------- */
+.dash-dim {
+  background: rgba(7, 7, 7, 0.5);
+}
+
+.dash-toast {
+  background: var(--dash-ground);
+  border: 1px solid var(--dash-ink);
+  border-radius: 0;
+  padding: 12px 16px;
+  font-size: 13.5px;
+  font-style: italic;
+}
+
+.dash-empty {
+  padding: 56px 0;
+  border-top: var(--dash-rule);
+}
+
+.dash-empty .big {
+  font-size: clamp(28px, 3vw, 40px);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+
+.dash-skel {
+  background: var(--dash-paper-2);
+  animation: dash-fade 1.6s ease-in-out infinite;
+}
+
+@keyframes dash-fade {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* ---------- first-load stagger only, max 12 ---------- */
+@keyframes dash-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dash-enter > * {
+  opacity: 0;
+  animation: dash-rise 0.7s var(--dash-ease) forwards;
+  animation-delay: var(--d, 0ms);
+}
+
+.dash-enter > *:nth-child(n + 13) {
+  opacity: 1;
+  animation: none;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 900px) {
+  .dash-rail {
+    width: 100%;
+    height: auto;
+    position: static;
+    border-right: 0;
+    border-bottom: var(--dash-rule);
+  }
+  .dash-brand {
+    padding: 18px 16px 14px;
+  }
+  .dash-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 20px;
+    padding: 4px 16px 12px;
+    scrollbar-width: thin;
+  }
+  .dash-nav a {
+    white-space: nowrap;
+    min-height: 44px;
+  }
+  .dash-rail-foot {
+    display: none;
+  }
+  .dash-content {
+    padding: 28px 16px 64px;
+  }
+  .dash-kpis {
+    grid-template-columns: 1fr 1fr;
+  }
+  .dash-kpi:nth-child(3),
+  .dash-kpi:nth-child(4) {
+    border-top: var(--dash-rule-soft);
+  }
+  .dash-kpi:nth-child(3) {
+    border-left: 0;
+  }
+}
+
+@media (max-width: 700px) {
+  .dash-table thead {
+    display: none;
+  }
+  .dash-table,
+  .dash-table tbody,
+  .dash-table tr,
+  .dash-table td {
+    display: block;
+    width: 100%;
+  }
+  .dash-table tbody tr {
+    padding: 14px 0;
+    border-bottom: var(--dash-rule-soft);
+  }
+  .dash-table tbody td {
+    height: auto;
+    border: 0;
+    padding: 2px 0;
+  }
+  .dash-table .c-num,
+  .dash-table .c-price {
+    text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-enter > * {
+    opacity: 1 !important;
+    animation: none !important;
+    transform: none !important;
+  }
+  .dash-skel {
+    animation: none;
+  }
+}
