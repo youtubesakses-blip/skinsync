@@ -6,13 +6,19 @@ import { z } from "zod";
 export const requestOtpSchema = z.object({
   phone: z
     .string()
-    .min(9, "Nomor HP terlalu pendek")
-    .max(15, "Nomor HP terlalu panjang")
-    .regex(/^[\d\+\-\s]+$/, "Format nomor HP tidak valid"),
+    .regex(
+      /^62\d{8,13}$/,
+      "Nomor HP harus berupa angka dan diawali 62"
+    ),
 });
 
 export const verifyOtpSchema = z.object({
-  phone: z.string(),
+  phone: z
+    .string()
+    .regex(
+      /^62\d{8,13}$/,
+      "Nomor HP harus berupa angka dan diawali 62"
+    ),
   otp: z
     .string()
     .length(6, "OTP harus 6 digit")

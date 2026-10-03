@@ -6,6 +6,7 @@
 
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { isValidPhone } from "@/lib/phone";
 
 type Step = "phone" | "otp";
 
@@ -15,11 +16,12 @@ function LoginForm() {
   const nextPath = searchParams.get("next") ?? "/";
 
   const [step, setStep] = useState<Step>("phone");
-  const [phone, setPhone] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [cooldown, setCooldown] = useState(0);
+  const phone = `62${phoneNumber}`;
 
   // Hitung mundur cooldown
   const startCooldown = (seconds: number) => {
@@ -158,15 +160,34 @@ function LoginForm() {
                 >
                   Nomor WhatsApp
                 </label>
-                <input
-                  id="phone"
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="08123456789 atau +628123456789"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                />
+                <div className="flex">
+                  <span
+                    aria-hidden="true"
+                    className="inline-flex items-center px-3 border border-r-0 border-gray-300 rounded-l-md bg-gray-100 text-gray-700"
+                  >
+                    62
+                  </span>
+                  <input
+                    id="phone"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]{8,13}"
+                    maxLength={13}
+                    value={phoneNumber}
+                    onChange={(e) =>
+                      setPhoneNumber(
+                        e.target.value.replace(/\D/g, "").replace(/^0+/, "")
+                      )
+                    }
+                    placeholder="8123456789"
+                    required
+                    aria-describedby="phone-hint"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-r-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                </div>
+                <p id="phone-hint" className="mt-1 text-xs text-gray-500">
+                  Masukkan nomor setelah 62, tanpa angka 0 di depan.
+                </p>
               </div>
 
               {error && (
@@ -177,7 +198,7 @@ function LoginForm() {
 
               <button
                 type="submit"
-                disabled={loading || !phone}
+                disabled={loading || !isValidPhone(phone)}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 {loading ? "Mengirim..." : "Kirim OTP via WhatsApp"}

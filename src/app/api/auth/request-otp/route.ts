@@ -4,7 +4,7 @@
 import { type NextRequest } from "next/server";
 import { requestOtpSchema } from "@/lib/validators/auth";
 import { requestOtp } from "@/server/services/auth";
-import { normalizePhone, isValidPhone } from "@/lib/phone";
+import { isValidPhone } from "@/lib/phone";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
@@ -33,10 +33,10 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const phone = normalizePhone(parsed.data.phone);
+  const phone = parsed.data.phone;
   if (!isValidPhone(phone)) {
     return Response.json(
-      { error: "Format nomor HP tidak valid. Gunakan format: 08xx atau +62xx" },
+      { error: "Format nomor HP tidak valid. Gunakan format 62xxxxxxxxxx." },
       { status: 400 }
     );
   }
