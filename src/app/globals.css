@@ -207,6 +207,286 @@ body {
   scrollbar-color: #070707 transparent;
 }
 
+/* ---------- Pattern A: pinned horizontal product rail ---------- */
+.rail-stage {
+  position: relative;
+  height: var(--h, 400svh);
+}
+.rail-pin {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #f7f7f4;
+}
+.rail-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0 5vw 4vh;
+}
+.track {
+  display: flex;
+  gap: 4vw;
+  padding: 0 5vw;
+  width: max-content;
+  transform: translate3d(calc(var(--p, 0) * var(--max, 0) * -1px), 0, 0);
+  will-change: transform;
+}
+.card {
+  width: min(38vw, 520px);
+  flex: none;
+  opacity: 0.35;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card.on {
+  opacity: 1;
+}
+.shot {
+  aspect-ratio: 4/5;
+  overflow: hidden;
+  background: #e9d3c0;
+}
+.shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: multiply;
+  transform: scale(1.15) translateX(calc((var(--p, 0) - var(--cp, 0)) * -40px));
+  transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card:hover .shot img {
+  transform: scale(1.2) translateX(calc((var(--p, 0) - var(--cp, 0)) * -40px));
+}
+.meta {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  gap: 6px 12px;
+  align-items: baseline;
+  border-top: 1px solid #070707;
+  padding-top: 14px;
+  margin-top: 14px;
+}
+.meta i {
+  color: #ef6f79;
+  font-style: normal;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+}
+.meta b {
+  font-weight: 600;
+  font-size: 1.3rem;
+}
+.meta b a:hover {
+  font-style: italic;
+}
+.meta s {
+  text-decoration: none;
+  color: #ef6f79;
+  font-weight: 600;
+  font-size: 1.3rem;
+}
+.meta em {
+  grid-column: 2 / -1;
+}
+.meta .fur-tag {
+  grid-column: 2 / -1;
+}
+.add {
+  grid-column: 2 / -1;
+  justify-self: start;
+  margin-top: 10px;
+  background: #ef6f79;
+  color: #070707;
+  padding: 14px 26px;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.3s,
+    color 0.3s;
+}
+.card.on .add {
+  opacity: 1;
+  pointer-events: auto;
+}
+button.add:hover {
+  background: #070707;
+  color: #f7f7f4;
+}
+.card:focus-within {
+  outline: 1px solid #070707;
+  outline-offset: 4px;
+}
+.bar {
+  position: absolute;
+  left: 5vw;
+  right: 5vw;
+  bottom: 5vh;
+  height: 1px;
+  background: rgba(7, 7, 7, 0.2);
+}
+.bar i {
+  display: block;
+  height: 1px;
+  background: #ef6f79;
+  transform-origin: 0 50%;
+  transform: scaleX(var(--p, 0));
+}
+@media (max-width: 700px) {
+  .card {
+    width: 78vw;
+  }
+}
+
+/* ---------- Pattern C: ruled index list + floating preview ---------- */
+.plist {
+  position: relative;
+  border-bottom: 1px solid #070707;
+}
+.prow {
+  display: grid;
+  grid-template-columns: 48px 1.2fr 2fr auto;
+  gap: 24px;
+  align-items: baseline;
+  padding: 22px 0;
+  border-top: 1px solid #070707;
+}
+.prow:hover b,
+.prow:focus-visible b {
+  font-style: italic;
+}
+.prow:focus-visible {
+  outline: 1px solid #070707;
+  outline-offset: 4px;
+}
+.prow i {
+  color: #ef6f79;
+  font-style: normal;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+}
+.prow .pmain {
+  display: contents;
+}
+.prow b {
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+.prow em {
+  font-size: 0.95rem;
+  color: rgba(7, 7, 7, 0.6);
+}
+.prow s {
+  text-decoration: none;
+  color: #ef6f79;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.prow .pthumb {
+  display: none;
+}
+.ppreview {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 260px;
+  aspect-ratio: 4/5;
+  pointer-events: none;
+  overflow: hidden;
+  background: #e9d3c0;
+  mix-blend-mode: multiply;
+  opacity: 0;
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 40;
+}
+.ppreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: multiply;
+}
+.plist:hover .ppreview.on {
+  opacity: 1;
+}
+@media (hover: none) {
+  .ppreview {
+    display: none;
+  }
+  .prow {
+    grid-template-columns: 64px 1fr auto;
+    gap: 16px;
+    align-items: center;
+  }
+  .prow .pthumb {
+    display: block;
+    width: 64px;
+    aspect-ratio: 4/5;
+    overflow: hidden;
+    background: #e9d3c0;
+  }
+  .prow .pthumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    mix-blend-mode: multiply;
+  }
+  .prow i {
+    display: none;
+  }
+  .prow .pmain {
+    display: block;
+  }
+  .prow b {
+    display: block;
+    font-size: 1.05rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rail-stage {
+    height: auto !important;
+  }
+  .rail-pin {
+    position: static;
+    height: auto;
+    overflow: visible;
+    padding: 4rem 0;
+  }
+  .track {
+    transform: none;
+    width: auto;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 1rem;
+  }
+  .card {
+    opacity: 1;
+    scroll-snap-align: start;
+  }
+  .card .add {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .shot img {
+    transform: none;
+  }
+  .bar {
+    display: none;
+  }
+  .ppreview {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rev-words .w,
   [data-rev] {

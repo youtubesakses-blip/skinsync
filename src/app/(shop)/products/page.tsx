@@ -3,9 +3,11 @@
 
 import { db } from "@/lib/db";
 import type { Prisma } from "../../../../generated/prisma/client";
+import { imageUrl } from "@/lib/image-url";
 import { formatRupiah } from "@/lib/money";
 import Link from "next/link";
 import type { Metadata } from "next";
+import ProductIndexList, { type IndexItem } from "@/components/shop/ProductIndexList";
 
 export const metadata: Metadata = {
   title: "Katalog Produk Skincare — SkinSync",
@@ -93,6 +95,18 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   if (sort === "price-desc") filtered = [...products].sort((a, b) => (b.variants[0]?.price ?? 0) - (a.variants[0]?.price ?? 0));
 
   const totalPages = Math.ceil(totalCount / pageSize);
+
+  const items: IndexItem[] = filtered.map((product, i) => {
+    const v = product.variants[0];
+    return {
+      slug: product.slug,
+      index: String(i + 1 + (page - 1) * pageSize).padStart(2, "0"),
+      name: product.name,
+      note: `${product.category?.name ?? "Skincare"}${v ? `, ${v.name}` : ""}`,
+      price: v ? formatRupiah(v.price) : "—",
+      img: product.images[0] ? imageUrl(product.images[0].key) : null,
+    };
+  });
 
   const rowLink = (active: boolean, href: string, label: string, count?: number) => (
     <Link
@@ -197,31 +211,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
               <Link href="/products" className="furniture underline underline-offset-4 mt-4 inline-block">Reset filter</Link>
             </div>
           ) : (
-            <div>
-              {filtered.map((product, i) => {
-                const v = product.variants[0];
-                return (
-                  <Link
-                    key={product.id}
-                    href={`/products/${product.slug}`}
-                    className="group grid grid-cols-[auto_1fr_auto] sm:grid-cols-[auto_1fr_auto_auto] items-baseline gap-x-5 gap-y-1 py-5 border-b border-[#070707]"
-                  >
-                    <span className="furniture text-[#EF6F79]">0{i + 1 + (page - 1) * pageSize}</span>
-                    <span>
-                      <span className="block text-xl sm:text-2xl font-medium tracking-[-0.01em] group-hover:italic transition-all">{product.name}</span>
-                      <span className="block italic text-sm text-[#070707]/55 mt-0.5">
-                        {product.category?.name ?? "Skincare"}
-                        {v ? ` — ${v.name}` : ""} · {product.avgRating.toFixed(1)} ({product.reviewCount})
-                      </span>
-                    </span>
-                    <span className="text-lg font-semibold text-[#EF6F79] whitespace-nowrap">
-                      {v ? formatRupiah(v.price) : "—"}
-                    </span>
-                    <span className="hidden sm:inline furniture underline underline-offset-4">Lihat</span>
-                  </Link>
-                );
-              })}
-            </div>
+            <ProductIndexList items={items} />
           )}
 
           {totalPages > 1 && (

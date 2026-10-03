@@ -33,7 +33,7 @@ export default async function ShopLayout({
               <p className="furniture text-[#F7F7F4]/50 mb-4">Toko</p>
               <div className="flex flex-col gap-2">
                 <Link href="/products" className="hover:opacity-60 transition-opacity w-fit">Semua produk</Link>
-                <Link href="/#harga" className="hover:opacity-60 transition-opacity w-fit">Harga</Link>
+                <Link href="/#produk" className="hover:opacity-60 transition-opacity w-fit">Koleksi</Link>
                 <Link href="/cart" className="hover:opacity-60 transition-opacity w-fit">Keranjang</Link>
               </div>
             </div>

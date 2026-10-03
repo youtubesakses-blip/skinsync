@@ -2,12 +2,14 @@
 // Beranda Aurelle — poster serif, multiply photo, scroll-scrubbed stages, ruled rows.
 
 import { db } from "@/lib/db";
+import { getSession } from "@/lib/auth";
 import { imageUrl } from "@/lib/image-url";
 import { formatRupiah } from "@/lib/money";
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
 import AurelleChoreo from "@/components/shop/AurelleChoreo";
+import ProductRail, { type RailProduct } from "@/components/shop/ProductRail";
 
 export const metadata: Metadata = {
   title: "SkinSync — Skincare Terpercaya untuk Semua Jenis Kulit",
@@ -46,7 +48,7 @@ const FAQS = [
 export default async function HomePage() {
   const now = new Date();
 
-  const [banners, categories, featuredProducts] = await Promise.all([
+  const [banners, categories, featuredProducts, session] = await Promise.all([
     db.banner.findMany({
       where: {
         isActive: true,
@@ -66,18 +68,36 @@ export default async function HomePage() {
       where: { isActive: true, deletedAt: null },
       include: {
         category: true,
+        brand: true,
         images: { orderBy: { sortOrder: "asc" }, take: 1 },
         variants: { where: { isActive: true }, orderBy: { price: "asc" }, take: 1 },
       },
       orderBy: { avgRating: "desc" },
       take: 6,
     }),
+    getSession(),
   ]);
 
   const heroImg = banners[0] ? imageUrl(banners[0].imageKey) : featuredProducts[0]?.images[0] ? imageUrl(featuredProducts[0].images[0].key) : null;
   const heroTitle = banners[0]?.title ?? featuredProducts[0]?.name ?? "Batch No. 042";
   const revealImg = banners[1] ? imageUrl(banners[1].imageKey) : featuredProducts[1]?.images[0] ? imageUrl(featuredProducts[1].images[0].key) : heroImg;
   const stillImg = banners[2] ? imageUrl(banners[2].imageKey) : featuredProducts[2]?.images[0] ? imageUrl(featuredProducts[2].images[0].key) : heroImg;
+
+  const railProducts: RailProduct[] = featuredProducts.map((p, i) => {
+    const v = p.variants[0];
+    return {
+      id: p.id,
+      slug: p.slug,
+      index: String(i + 1).padStart(2, "0"),
+      name: p.name,
+      note: `${p.category?.name ?? "Skincare"}${v ? `, ${v.name}` : ""}`,
+      tag: p.brand?.name ?? "SkinSync",
+      price: v ? formatRupiah(v.price) : "—",
+      img: p.images[0] ? imageUrl(p.images[0].key) : null,
+      variantId: v?.id ?? null,
+      inStock: (v?.stock ?? 0) > 0,
+    };
+  });
 
   return (
     <AurelleChoreo>
@@ -188,7 +208,7 @@ export default async function HomePage() {
         )}
 
         {/* ============ 4. RITUAL — near-black (360svh) ============ */}
-        <section className="stage bg-[#070707] text-[#F7F7F4]" data-ritual style={{ height: "360svh" }}>
+        <section id="ritual" className="stage bg-[#070707] text-[#F7F7F4]" data-ritual style={{ height: "360svh" }}>
           <div className="stage-pin bg-[#070707] text-[#F7F7F4]">
             <div className="h-full max-w-7xl mx-auto px-4 sm:px-8 py-20 md:py-0 grid md:grid-cols-2 gap-10 items-center">
               <div>
@@ -219,50 +239,8 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* ============ 5. PAPER — price table ============ */}
-        <section id="harga" className="bg-[#F1F1ED]">
-          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 md:py-24">
-            <p className="furniture mb-6" data-rev>Harga — 03</p>
-            <h2 className="display-tight text-4xl sm:text-6xl font-medium max-w-3xl">
-              <span className="rev-words"><W text="Harga jujur," /> <em className="italic font-normal"><W text="isi penuh." /></em></span>
-            </h2>
-            <div className="mt-12">
-              {featuredProducts.map((p, i) => {
-                const v = p.variants[0];
-                return (
-                  <Link
-                    key={p.id}
-                    href={`/products/${p.slug}`}
-                    data-rev
-                    style={{ ["--d" as string]: `${40 + i * 30}ms` }}
-                    className="group grid grid-cols-[1fr_auto] sm:grid-cols-[auto_1fr_auto_auto] items-baseline gap-x-6 gap-y-1 py-4 border-t border-[#070707] last:border-b"
-                  >
-                    <span className="furniture text-[#EF6F79]">0{i + 1}</span>
-                    <span>
-                      <span className="block text-lg sm:text-xl font-semibold leading-snug group-hover:italic transition-all">{p.name}</span>
-                      <span className="block italic text-sm text-[#070707]/60">{p.category?.name ?? "Skincare"} — {v ? `${v.name}` : "satu ukuran"}</span>
-                    </span>
-                    <span className="text-lg sm:text-xl font-semibold text-[#EF6F79] whitespace-nowrap">
-                      {v ? formatRupiah(v.price) : "—"}
-                    </span>
-                    <span className="hidden sm:inline furniture underline underline-offset-4">Lihat</span>
-                  </Link>
-                );
-              })}
-            </div>
-            <div className="mt-10 flex flex-wrap items-center gap-6" data-rev>
-              <Link
-                href="/products"
-                className="bg-[#EF6F79] text-white furniture px-8 py-4 hover:bg-[#070707] transition-colors"
-              >
-                Lihat katalog lengkap
-              </Link>
-              <span className="script-accent text-2xl" style={{ transform: "rotate(-1.5deg)" }}>
-                mulai dari batch kecil saja
-              </span>
-            </div>
-          </div>
-        </section>
+        {/* ============ 5. KOLEKSI — pinned horizontal rail (Pattern A) ============ */}
+        <ProductRail products={railProducts} isLoggedIn={!!session} />
 
         {/* ============ TESTIMONI — italic pull quotes ============ */}
         <section className="bg-[#F7F7F4]">

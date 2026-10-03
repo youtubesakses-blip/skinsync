@@ -3,9 +3,11 @@
 
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
+import { imageUrl } from "@/lib/image-url";
 import { formatRupiah } from "@/lib/money";
 import Link from "next/link";
 import type { Metadata } from "next";
+import ProductIndexList, { type IndexItem } from "@/components/shop/ProductIndexList";
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;
@@ -30,6 +32,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       products: {
         where: { isActive: true, deletedAt: null },
         include: {
+          images: { orderBy: { sortOrder: "asc" }, take: 1 },
           variants: { where: { isActive: true }, orderBy: { price: "asc" } },
         },
         orderBy: { createdAt: "desc" },
@@ -38,6 +41,18 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   });
 
   if (!category) notFound();
+
+  const items: IndexItem[] = category.products.map((product, i) => {
+    const v = product.variants[0];
+    return {
+      slug: product.slug,
+      index: String(i + 1).padStart(2, "0"),
+      name: product.name,
+      note: v ? v.name : "Satu ukuran",
+      price: v ? formatRupiah(v.price) : "—",
+      img: product.images[0] ? imageUrl(product.images[0].key) : null,
+    };
+  });
 
   return (
     <div className="bg-[#F7F7F4] text-[#070707]">
@@ -58,29 +73,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             <Link href="/products" className="furniture underline underline-offset-4 mt-4 inline-block">Lihat semua produk</Link>
           </div>
         ) : (
-          <div className="mt-10 border-t border-[#070707]">
-            {category.products.map((product, i) => {
-              const v = product.variants[0];
-              return (
-                <Link
-                  key={product.id}
-                  href={`/products/${product.slug}`}
-                  className="group grid grid-cols-[auto_1fr_auto] sm:grid-cols-[auto_1fr_auto_auto] items-baseline gap-x-5 py-5 border-b border-[#070707]"
-                >
-                  <span className="furniture text-[#EF6F79]">0{i + 1}</span>
-                  <span>
-                    <span className="block text-xl sm:text-2xl font-medium group-hover:italic transition-all">{product.name}</span>
-                    <span className="block italic text-sm text-[#070707]/55 mt-0.5">
-                      {v ? v.name : "Satu ukuran"} · {product.avgRating.toFixed(1)} ({product.reviewCount})
-                    </span>
-                  </span>
-                  <span className="text-lg font-semibold text-[#EF6F79] whitespace-nowrap">
-                    {v ? formatRupiah(v.price) : "—"}
-                  </span>
-                  <span className="hidden sm:inline furniture underline underline-offset-4">Lihat</span>
-                </Link>
-              );
-            })}
+          <div className="mt-10">
+            <ProductIndexList items={items} />
           </div>
         )}
       </div>

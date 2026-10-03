@@ -14,7 +14,7 @@ interface ShopNavbarProps {
 
 const LINKS: [string, string][] = [
   ["Katalog", "/products"],
-  ["Best Seller", "/#harga"],
+  ["Koleksi", "/#produk"],
   ["Ritual", "/#ritual"],
   ["FAQ", "/faq"],
 ];
