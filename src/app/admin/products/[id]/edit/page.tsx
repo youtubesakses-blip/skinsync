@@ -35,6 +35,10 @@ export default async function AdminEditProductPage({
         ingredients: true,
         howToUse: true,
         isActive: true,
+        images: {
+          select: { id: true, key: true, altText: true, sortOrder: true },
+          orderBy: { sortOrder: "asc" },
+        },
       },
     }),
     db.category.findMany({ where: { isActive: true }, orderBy: { name: "asc" } }),
