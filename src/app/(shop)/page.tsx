@@ -67,7 +67,7 @@ export default async function HomePage() {
     getSession(),
   ]);
 
-  // Hero pakai satu image statis: public/assets/hero.png (jangan pakai foto/nama produk apapun).
+  // Hero pakai satu image statis: public/assets/hero.jpeg (jangan pakai foto/nama produk apapun).
   // Section Reveal murni brand, tanpa foto.
   const revealImg: string | null = null;
 
@@ -90,11 +90,11 @@ export default async function HomePage() {
   return (
     <AurelleChoreo>
       <div className="bg-[#F7F7F4] text-[#070707]">
-        {/* ============ 1. HERO — teks dulu saat load, image /assets/hero.png muncul pas scroll ============ */}
+        {/* ============ 1. HERO — teks dulu saat load, image /assets/hero.jpeg muncul pas scroll ============ */}
         <section className="stage" id="hero" style={{ height: "300svh" }}>
           <div className="stage-pin bg-[#F7F7F4]">
             <div className="hero-photo absolute inset-0">
-              <Image src="/assets/hero.png" alt="SkinSync — perawatan kulit harian" fill className="object-cover" priority />
+              <Image src="/assets/hero.jpeg" alt="SkinSync — perawatan kulit harian" fill className="object-cover" priority />
             </div>
             <div className="hero-type absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
               <span

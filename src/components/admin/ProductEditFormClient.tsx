@@ -19,6 +19,18 @@ interface InitialImage {
   sortOrder: number;
 }
 
+interface InitialVariant {
+  id: number;
+  sku: string;
+  name: string;
+  price: number;
+  comparePrice: number | null;
+  weightGram: number;
+  stock: number;
+  minStock: number;
+  isActive: boolean;
+}
+
 interface InitialProduct {
   id: number;
   name: string;
@@ -30,6 +42,9 @@ interface InitialProduct {
   ingredients: string;
   howToUse: string;
   isActive: boolean;
+  skinTypes: { id: number }[];
+  skinConcerns: { id: number }[];
+  variants: InitialVariant[];
   images: InitialImage[];
 }
 
@@ -44,10 +59,14 @@ export default function ProductEditFormClient({
   product,
   categories,
   brands,
+  skinTypes,
+  skinConcerns,
 }: {
   product: InitialProduct;
   categories: Option[];
   brands: Option[];
+  skinTypes: Option[];
+  skinConcerns: Option[];
 }) {
   const router = useRouter();
   const [form, setForm] = useState({ ...product });
@@ -60,6 +79,38 @@ export default function ProductEditFormClient({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  const [selectedSkinTypeIds, setSelectedSkinTypeIds] = useState<number[]>(
+    (product.skinTypes ?? []).map((t) => t.id)
+  );
+  const [selectedConcernIds, setSelectedConcernIds] = useState<number[]>(
+    (product.skinConcerns ?? []).map((c) => c.id)
+  );
+  const [variants, setVariants] = useState<
+    Array<{
+      id?: number;
+      sku: string;
+      name: string;
+      price: number;
+      comparePrice?: number | null;
+      stock: number;
+      minStock: number;
+      weightGram: number;
+      isActive: boolean;
+    }>
+  >(
+    (product.variants ?? []).map((v) => ({
+      id: v.id,
+      sku: v.sku,
+      name: v.name,
+      price: v.price,
+      comparePrice: v.comparePrice,
+      stock: v.stock,
+      minStock: v.minStock,
+      weightGram: v.weightGram,
+      isActive: v.isActive,
+    }))
+  );
 
   const set = (key: keyof InitialProduct, value: string | number | boolean) =>
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -119,6 +170,33 @@ export default function ProductEditFormClient({
       prev.map((img, i) => (i === index ? { ...img, altText: value } : img))
     );
 
+  const handleAddVariant = () =>
+    setVariants((prev) => [
+      ...prev,
+      {
+        sku: "",
+        name: "",
+        price: 0,
+        comparePrice: null,
+        stock: 0,
+        minStock: 5,
+        weightGram: 0,
+        isActive: true,
+      },
+    ]);
+
+  const handleRemoveVariant = (index: number) =>
+    setVariants((prev) => prev.filter((_, i) => i !== index));
+
+  const updateVariant = (
+    index: number,
+    key: "sku" | "name" | "price" | "comparePrice" | "stock" | "minStock" | "weightGram" | "isActive",
+    value: string | number | boolean | null
+  ) =>
+    setVariants((prev) =>
+      prev.map((v, i) => (i === index ? { ...v, [key]: value } : v))
+    );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -139,6 +217,19 @@ export default function ProductEditFormClient({
           ingredients: form.ingredients,
           howToUse: form.howToUse,
           isActive: form.isActive,
+          skinTypeIds: selectedSkinTypeIds,
+          skinConcernIds: selectedConcernIds,
+          variants: variants.map((v) => ({
+            id: v.id,
+            sku: v.sku,
+            name: v.name,
+            price: Number(v.price),
+            comparePrice: v.comparePrice ? Number(v.comparePrice) : null,
+            stock: Number(v.stock),
+            minStock: Number(v.minStock),
+            weightGram: Number(v.weightGram),
+            isActive: v.isActive,
+          })),
           images: images.map((img) => ({ key: img.key, altText: img.altText })),
         }),
       });
@@ -285,10 +376,202 @@ export default function ProductEditFormClient({
         </div>
 
         <p className="text-[11px] text-slate-400 bg-slate-50 rounded-xl p-3 border">
-          Catatan: varian (harga &amp; stok) dikelola lewat menu{" "}
-          <span className="font-bold">Stok</span>. Urutan foto menentukan foto
-          utama (foto pertama tampil di katalog).
+          Urutan foto menentukan foto utama (foto pertama tampil di katalog).
+          Perubahan stok di sini tercatat sebagai penyesuaian manual.
         </p>
+      </div>
+
+      <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+        <h2 className="text-sm font-bold text-slate-900 border-b pb-2">
+          Kesesuaian Jenis & Masalah Kulit
+        </h2>
+
+        <div>
+          <span className="block font-semibold text-slate-700 mb-2">Jenis Kulit:</span>
+          <div className="flex flex-wrap gap-2">
+            {skinTypes.map((st) => {
+              const isSelected = selectedSkinTypeIds.includes(st.id);
+              return (
+                <button
+                  type="button"
+                  key={st.id}
+                  onClick={() =>
+                    setSelectedSkinTypeIds((prev) =>
+                      isSelected ? prev.filter((id) => id !== st.id) : [...prev, st.id]
+                    )
+                  }
+                  className={`px-3 py-1.5 rounded-lg border text-xs font-semibold transition ${
+                    isSelected
+                      ? "bg-indigo-600 text-white border-indigo-600"
+                      : "bg-slate-50 text-slate-700 border-slate-200"
+                  }`}
+                >
+                  {st.name}
+                </button>
+              );
+            })}
+          </div>
+          {skinTypes.length === 0 && (
+            <p className="text-[11px] text-slate-400 mt-1">Belum ada data jenis kulit.</p>
+          )}
+        </div>
+
+        <div>
+          <span className="block font-semibold text-slate-700 mb-2">Masalah Kulit:</span>
+          <div className="flex flex-wrap gap-2">
+            {skinConcerns.map((sc) => {
+              const isSelected = selectedConcernIds.includes(sc.id);
+              return (
+                <button
+                  type="button"
+                  key={sc.id}
+                  onClick={() =>
+                    setSelectedConcernIds((prev) =>
+                      isSelected ? prev.filter((id) => id !== sc.id) : [...prev, sc.id]
+                    )
+                  }
+                  className={`px-3 py-1.5 rounded-lg border text-xs font-semibold transition ${
+                    isSelected
+                      ? "bg-amber-600 text-white border-amber-600"
+                      : "bg-slate-50 text-slate-700 border-slate-200"
+                  }`}
+                >
+                  {sc.name}
+                </button>
+              );
+            })}
+          </div>
+          {skinConcerns.length === 0 && (
+            <p className="text-[11px] text-slate-400 mt-1">Belum ada data masalah kulit.</p>
+          )}
+        </div>
+      </div>
+
+      <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+        <div className="flex items-center justify-between border-b pb-2">
+          <h2 className="text-sm font-bold text-slate-900">Varian Produk (Ukuran & Stok)</h2>
+          <button
+            type="button"
+            onClick={handleAddVariant}
+            className="text-indigo-600 font-bold hover:underline text-xs"
+          >
+            + Tambah Varian
+          </button>
+        </div>
+
+        {variants.length === 0 && (
+          <p className="text-[11px] text-slate-400 bg-slate-50 rounded-xl p-3 border">
+            Belum ada varian. Klik &quot;Tambah Varian&quot; untuk membuat varian baru.
+          </p>
+        )}
+
+        <div className="space-y-3">
+          {variants.map((v, idx) => (
+            <div key={v.id ?? `new-${idx}`} className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-slate-800">Varian #{idx + 1}</span>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveVariant(idx)}
+                  className="text-red-600 hover:underline text-[11px]"
+                >
+                  Hapus Varian
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div>
+                  <label className="block text-[11px] font-medium text-slate-600 mb-1">Nama Varian</label>
+                  <input
+                    type="text"
+                    required
+                    value={v.name}
+                    onChange={(e) => updateVariant(idx, "name", e.target.value)}
+                    placeholder="Contoh: 30 ml"
+                    className="w-full p-2 border rounded-lg bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-medium text-slate-600 mb-1">SKU Unik</label>
+                  <input
+                    type="text"
+                    required
+                    value={v.sku}
+                    onChange={(e) => updateVariant(idx, "sku", e.target.value.toUpperCase())}
+                    placeholder="Contoh: TNR-30ML"
+                    className="w-full p-2 border rounded-lg bg-white uppercase font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-medium text-slate-600 mb-1">Harga Jual (IDR)</label>
+                  <input
+                    type="number"
+                    required
+                    min={1}
+                    value={v.price}
+                    onChange={(e) => updateVariant(idx, "price", Number(e.target.value))}
+                    className="w-full p-2 border rounded-lg bg-white font-bold"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-medium text-slate-600 mb-1">Harga Coret (Opsional)</label>
+                  <input
+                    type="number"
+                    value={v.comparePrice ?? ""}
+                    onChange={(e) =>
+                      updateVariant(idx, "comparePrice", e.target.value ? Number(e.target.value) : null)
+                    }
+                    className="w-full p-2 border rounded-lg bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-medium text-slate-600 mb-1">Stok</label>
+                  <input
+                    type="number"
+                    required
+                    min={0}
+                    value={v.stock}
+                    onChange={(e) => updateVariant(idx, "stock", Number(e.target.value))}
+                    className="w-full p-2 border rounded-lg bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-medium text-slate-600 mb-1">Batas Minimum Stok</label>
+                  <input
+                    type="number"
+                    required
+                    min={0}
+                    value={v.minStock}
+                    onChange={(e) => updateVariant(idx, "minStock", Number(e.target.value))}
+                    className="w-full p-2 border rounded-lg bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-medium text-slate-600 mb-1">Berat (Gram)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={v.weightGram}
+                    onChange={(e) => updateVariant(idx, "weightGram", Number(e.target.value))}
+                    className="w-full p-2 border rounded-lg bg-white"
+                  />
+                </div>
+                <div className="flex items-center gap-2 pt-5">
+                  <input
+                    type="checkbox"
+                    id={`variant-active-${idx}`}
+                    checked={v.isActive}
+                    onChange={(e) => updateVariant(idx, "isActive", e.target.checked)}
+                    className="rounded text-indigo-600"
+                  />
+                  <label htmlFor={`variant-active-${idx}`} className="text-[11px] font-semibold text-slate-700">
+                    Varian Aktif
+                  </label>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">

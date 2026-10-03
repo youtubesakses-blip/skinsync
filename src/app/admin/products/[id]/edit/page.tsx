@@ -21,7 +21,7 @@ export default async function AdminEditProductPage({
   const productId = parseInt(id, 10);
   if (Number.isNaN(productId)) notFound();
 
-  const [product, categories, brands] = await Promise.all([
+  const [product, categories, brands, skinTypes, skinConcerns] = await Promise.all([
     db.product.findUnique({
       where: { id: productId },
       select: {
@@ -35,6 +35,22 @@ export default async function AdminEditProductPage({
         ingredients: true,
         howToUse: true,
         isActive: true,
+        skinTypes: { select: { id: true } },
+        skinConcerns: { select: { id: true } },
+        variants: {
+          select: {
+            id: true,
+            sku: true,
+            name: true,
+            price: true,
+            comparePrice: true,
+            weightGram: true,
+            stock: true,
+            minStock: true,
+            isActive: true,
+          },
+          orderBy: { id: "asc" },
+        },
         images: {
           select: { id: true, key: true, altText: true, sortOrder: true },
           orderBy: { sortOrder: "asc" },
@@ -43,6 +59,8 @@ export default async function AdminEditProductPage({
     }),
     db.category.findMany({ where: { isActive: true }, orderBy: { name: "asc" } }),
     db.brand.findMany({ orderBy: { name: "asc" } }),
+    db.skinType.findMany({ orderBy: { name: "asc" } }),
+    db.skinConcern.findMany({ orderBy: { name: "asc" } }),
   ]);
 
   if (!product) notFound();
@@ -68,6 +86,8 @@ export default async function AdminEditProductPage({
         product={product}
         categories={categories}
         brands={brands}
+        skinTypes={skinTypes}
+        skinConcerns={skinConcerns}
       />
     </div>
   );

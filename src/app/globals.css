@@ -128,7 +128,7 @@ body {
   overflow: hidden;
 }
 
-/* hero — teks dulu saat load, image /assets/hero.png muncul pas scroll */
+/* hero — teks dulu saat load, image /assets/hero.jpeg muncul pas scroll */
 .hero-photo {
   mix-blend-mode: multiply;
   opacity: clamp(0, calc((var(--p, 0) - 0.1) / 0.4), 1);

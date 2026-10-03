@@ -22,20 +22,144 @@ export async function PATCH(
     const body = await request.json();
 
     const updated = await db.$transaction(async (tx) => {
+      const data: Record<string, unknown> = {
+        name: body.name,
+        slug: body.slug,
+        description: body.description,
+        ingredients: body.ingredients,
+        howToUse: body.howToUse,
+        bpomNumber: body.bpomNumber,
+        isActive: body.isActive,
+        categoryId: body.categoryId ? Number(body.categoryId) : undefined,
+        brandId: body.brandId ? Number(body.brandId) : undefined,
+      };
+
+      // Relasi kesesuaian kulit (opsional, hanya bila dikirim dari form edit)
+      if (Array.isArray(body.skinTypeIds)) {
+        const ids = (body.skinTypeIds as unknown[])
+          .map(Number)
+          .filter((n) => Number.isInteger(n) && n > 0);
+        data.skinTypes = { set: ids.map((id) => ({ id })) };
+      }
+      if (Array.isArray(body.skinConcernIds)) {
+        const ids = (body.skinConcernIds as unknown[])
+          .map(Number)
+          .filter((n) => Number.isInteger(n) && n > 0);
+        data.skinConcerns = { set: ids.map((id) => ({ id })) };
+      }
+
       const product = await tx.product.update({
         where: { id: productId },
-        data: {
-          name: body.name,
-          slug: body.slug,
-          description: body.description,
-          ingredients: body.ingredients,
-          howToUse: body.howToUse,
-          bpomNumber: body.bpomNumber,
-          isActive: body.isActive,
-          categoryId: body.categoryId ? Number(body.categoryId) : undefined,
-          brandId: body.brandId ? Number(body.brandId) : undefined,
-        },
+        data,
       });
+
+      // Sinkronisasi varian (tambah / ubah / hapus)
+      if (Array.isArray(body.variants)) {
+        const incoming = body.variants as Array<{
+          id?: number;
+          sku?: string;
+          name?: string;
+          price?: number;
+          comparePrice?: number | null;
+          weightGram?: number;
+          stock?: number;
+          minStock?: number;
+          isActive?: boolean;
+        }>;
+
+        const existing = await tx.productVariant.findMany({
+          where: { productId },
+          include: {
+            _count: { select: { orderItems: true, cartItems: true } },
+          },
+        });
+
+        const incomingIds = new Set(
+          incoming
+            .map((v) => Number(v.id))
+            .filter((n) => Number.isInteger(n) && n > 0)
+        );
+
+        // Hapus varian yang tidak lagi dikirim; yang sudah punya transaksi cukup dinonaktifkan
+        for (const ev of existing) {
+          if (!incomingIds.has(ev.id)) {
+            const hasTransaction =
+              ev._count.orderItems > 0 || ev._count.cartItems > 0;
+            if (hasTransaction) {
+              await tx.productVariant.update({
+                where: { id: ev.id },
+                data: { isActive: false },
+              });
+            } else {
+              await tx.productVariant.delete({ where: { id: ev.id } });
+            }
+          }
+        }
+
+        // Validasi SKU duplikat dalam payload
+        const skus = incoming
+          .map((v) => String(v.sku || "").trim().toUpperCase())
+          .filter(Boolean);
+        if (new Set(skus).size !== skus.length) {
+          throw new Error("SKU varian tidak boleh duplikat");
+        }
+
+        for (const v of incoming) {
+          const sku = String(v.sku || "").trim().toUpperCase();
+          const name = String(v.name || "").trim();
+          const price = Number(v.price);
+          if (!sku || !name || !Number.isFinite(price) || price <= 0) {
+            throw new Error("Varian wajib punya SKU, nama, dan harga > 0");
+          }
+          const variantData = {
+            sku,
+            name,
+            price,
+            comparePrice:
+              v.comparePrice != null && String(v.comparePrice) !== ""
+                ? Number(v.comparePrice)
+                : null,
+            weightGram: Number(v.weightGram ?? 0) || 0,
+            minStock: Number(v.minStock ?? 5) || 0,
+            isActive: v.isActive !== false,
+          };
+
+          const variantId = Number(v.id);
+          if (Number.isInteger(variantId) && variantId > 0) {
+            const old = existing.find((e) => e.id === variantId);
+            if (!old) continue;
+            const newStock =
+              v.stock != null && Number.isFinite(Number(v.stock))
+                ? Math.max(0, Number(v.stock))
+                : old.stock;
+            await tx.productVariant.update({
+              where: { id: variantId },
+              data: { ...variantData, stock: newStock },
+            });
+            // Catat mutasi bila stok berubah lewat form edit
+            if (newStock !== old.stock) {
+              await tx.stockMovement.create({
+                data: {
+                  variantId,
+                  type: "ADJUST",
+                  qty: Math.abs(newStock - old.stock),
+                  referenceType: "manual",
+                  note: `Ubah stok via edit produk (${old.stock} → ${newStock})`,
+                  createdBy: session.userId,
+                },
+              });
+            }
+          } else {
+            await tx.productVariant.create({
+              data: {
+                productId,
+                ...variantData,
+                stock: Math.max(0, Number(v.stock ?? 0) || 0),
+              },
+            });
+          }
+        }
+      }
 
       // Sinkronisasi gambar bila daftar images dikirim (pengganti penuh berurutan).
       // Format: images: [{ key: string, altText?: string }]
