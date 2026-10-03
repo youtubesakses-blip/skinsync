@@ -1,5 +1,5 @@
 // src/app/(shop)/page.tsx
-// Beranda: hero eye-catching + kategori + produk unggulan + testimoni + CTA
+// Beranda Aurelle — poster serif, multiply photo, scroll-scrubbed stages, ruled rows.
 
 import { db } from "@/lib/db";
 import { imageUrl } from "@/lib/image-url";
@@ -7,632 +7,309 @@ import { formatRupiah } from "@/lib/money";
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
+import AurelleChoreo from "@/components/shop/AurelleChoreo";
 
 export const metadata: Metadata = {
   title: "SkinSync — Skincare Terpercaya untuk Semua Jenis Kulit",
   description:
-    "Temukan produk skincare premium, BPOM, dan cocok untuk kulitmu. Gratis ongkir, pembayaran aman, pengiriman cepat.",
+    "Niacinamide 5%, 30 ml. Batch kecil, BPOM RI, untuk kulit Indonesia.",
 };
 
-const TRUST_ITEMS = [
-  "✓ 100% BPOM Resmi",
-  "✓ Dermatologist Tested",
-  "✓ Cruelty Free",
-  "✓ Formula Aman Ibu Hamil",
-  "✓ 50.000+ Pelanggan Puas",
-  "✓ Pengiriman Cepat",
+function W({ text }: { text: string }) {
+  const parts = text.split(" ");
+  return (
+    <>
+      {parts.map((w, i) => (
+        <span key={i} className="w" style={{ ["--i" as string]: i }}>
+          {w}
+          {i < parts.length - 1 ? " " : ""}
+        </span>
+      ))}
+    </>
+  );
+}
+
+const RITUAL = [
+  { no: "01", name: "Cleanse", time: "60 detik, pagi & malam", desc: "Gentle cleanser pH 5.5, tanpa busa berlebih." },
+  { no: "02", name: "Serum", time: "90 detik, malam", desc: "Niacinamide 5%, 3–4 tetes ke kulit lembap." },
+  { no: "03", name: "Moisturise", time: "60 detik, pagi & malam", desc: "Ceramide + squalane, kunci hidrasi 12 jam." },
+  { no: "04", name: "Sunscreen", time: "30 detik, tiap pagi", desc: "SPF 50 PA++++, dua ruas jari." },
 ];
 
-const TESTIMONIALS = [
-  {
-    name: "Nadia Prameswari",
-    role: "Kulit Kombinasi · Jakarta",
-    text: "Baru 2 minggu pakai, bekas jerawat memudar banget. Teksturnya ringan, nggak lengket sama sekali!",
-    rating: 5,
-    initial: "N",
-    color: "from-rose-400 to-orange-400",
-  },
-  {
-    name: "Salsa Bilqis",
-    role: "Kulit Sensitif · Bandung",
-    text: "Kulitku super rewel, tapi rangkaian SkinSync nggak bikin perih. Kemasannya juga mewah banget.",
-    rating: 5,
-    initial: "S",
-    color: "from-violet-400 to-fuchsia-400",
-  },
-  {
-    name: "Rina Amelia",
-    role: "Kulit Kering · Surabaya",
-    text: "Pagi-pagi kulit masih lembap dan plumpy. CS-nya fast respon via WA, pengiriman juga cepat!",
-    rating: 5,
-    initial: "R",
-    color: "from-amber-400 to-orange-500",
-  },
+const FAQS = [
+  { q: "Apakah semua produk terdaftar BPOM?", a: "Ya. Nomor registrasi tercantum di setiap halaman produk. Batch 042: NA18241900127." },
+  { q: "Berapa lama satu botol habis?", a: "Botol 30 ml untuk pemakaian 3–4 tetes, dua kali sehari, habis dalam 6–8 minggu." },
+  { q: "Berapa lama pengiriman?", a: "Jabodetabek 1–2 hari kerja, Pulau Jawa 2–3 hari, luar Jawa 3–5 hari. Resi dikirim via WhatsApp." },
+  { q: "Bagaimana cara membayar?", a: "Midtrans: QRIS, virtual account, kartu kredit. Batas pembayaran 24 jam." },
 ];
-
-const RITUAL_STEPS = [
-  {
-    no: "01",
-    title: "Cleanse",
-    desc: "Bersihkan wajah dengan gentle cleanser pH seimbang.",
-    emoji: "🧼",
-  },
-  {
-    no: "02",
-    title: "Treat",
-    desc: "Aplikasikan serum sesuai masalah kulitmu.",
-    emoji: "💧",
-  },
-  {
-    no: "03",
-    title: "Protect",
-    desc: "Kunci kelembapan + sunscreen tiap pagi.",
-    emoji: "☀️",
-  },
-];
-
-const CATEGORY_EMOJI = ["🧴", "💧", "✨", "🌿", "🧪", "💆‍♀️", "☀️", "🌙"];
 
 export default async function HomePage() {
   const now = new Date();
 
-  const banners = await db.banner.findMany({
-    where: {
-      isActive: true,
-      OR: [{ startsAt: null }, { startsAt: { lte: now } }],
-      AND: [{ OR: [{ endsAt: null }, { endsAt: { gte: now } }] }],
-    },
-    orderBy: { sortOrder: "asc" },
-    take: 5,
-  });
-
-  const categories = await db.category.findMany({
-    where: { isActive: true },
-    orderBy: { sortOrder: "asc" },
-    take: 8,
-  });
-
-  const featuredProducts = await db.product.findMany({
-    where: { isActive: true, deletedAt: null },
-    include: {
-      category: true,
-      images: { orderBy: { sortOrder: "asc" }, take: 1 },
-      variants: {
-        where: { isActive: true },
-        orderBy: { price: "asc" },
-        take: 1,
+  const [banners, categories, featuredProducts] = await Promise.all([
+    db.banner.findMany({
+      where: {
+        isActive: true,
+        OR: [{ startsAt: null }, { startsAt: { lte: now } }],
+        AND: [{ OR: [{ endsAt: null }, { endsAt: { gte: now } }] }],
       },
-    },
-    orderBy: { avgRating: "desc" },
-    take: 8,
-  });
+      orderBy: { sortOrder: "asc" },
+      take: 5,
+    }),
+    db.category.findMany({
+      where: { isActive: true },
+      orderBy: { sortOrder: "asc" },
+      take: 8,
+      include: { _count: { select: { products: true } } },
+    }),
+    db.product.findMany({
+      where: { isActive: true, deletedAt: null },
+      include: {
+        category: true,
+        images: { orderBy: { sortOrder: "asc" }, take: 1 },
+        variants: { where: { isActive: true }, orderBy: { price: "asc" }, take: 1 },
+      },
+      orderBy: { avgRating: "desc" },
+      take: 6,
+    }),
+  ]);
 
-  const heroBanner = banners[0];
+  const heroImg = banners[0] ? imageUrl(banners[0].imageKey) : featuredProducts[0]?.images[0] ? imageUrl(featuredProducts[0].images[0].key) : null;
+  const heroTitle = banners[0]?.title ?? featuredProducts[0]?.name ?? "Batch No. 042";
+  const revealImg = banners[1] ? imageUrl(banners[1].imageKey) : featuredProducts[1]?.images[0] ? imageUrl(featuredProducts[1].images[0].key) : heroImg;
+  const stillImg = banners[2] ? imageUrl(banners[2].imageKey) : featuredProducts[2]?.images[0] ? imageUrl(featuredProducts[2].images[0].key) : heroImg;
 
   return (
-    <div className="bg-[#fff8f3]">
-      {/* ============ HERO ============ */}
-      <section className="relative overflow-hidden">
-        {/* mesh gradient background */}
-        <div className="absolute inset-0 -z-10">
-          <div className="absolute -top-32 -left-32 w-[480px] h-[480px] rounded-full bg-gradient-to-br from-orange-200 via-rose-200 to-fuchsia-200 blur-3xl opacity-70" />
-          <div className="absolute top-10 right-[-120px] w-[520px] h-[520px] rounded-full bg-gradient-to-br from-amber-100 via-orange-100 to-rose-100 blur-3xl opacity-80" />
-          <div className="absolute bottom-[-160px] left-1/3 w-[420px] h-[420px] rounded-full bg-gradient-to-br from-violet-200 to-rose-100 blur-3xl opacity-50" />
-          <div className="absolute inset-0 texture-dots opacity-60" />
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 md:pt-16 pb-12 md:pb-20 grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
-          {/* Left copy */}
-          <div className="animate-fade-up">
-            <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur border border-[#2a1220]/10 rounded-full pl-1.5 pr-4 py-1.5 shadow-sm mb-5">
-              <span className="bg-gradient-to-r from-[#f4733d] to-[#e14b7a] text-white text-[11px] font-extrabold px-2.5 py-1 rounded-full tracking-wide">
-                BARU
-              </span>
-              <span className="text-[13px] font-semibold text-[#2a1220]/80">
-                Brightening Series — cerah dalam 14 hari ✨
-              </span>
-            </div>
-
-            <h1 className="text-[42px] leading-[1.02] sm:text-6xl lg:text-[68px] font-black tracking-tight text-[#2a1220]">
-              Kulit{" "}
-              <span className="relative inline-block text-transparent bg-clip-text bg-gradient-to-r from-[#f4733d] via-[#e14b7a] to-[#7c3aed]">
-                Glowing
-                <svg
-                  className="absolute -bottom-2 left-0 w-full"
-                  viewBox="0 0 200 12"
-                  fill="none"
-                >
-                  <path
-                    d="M2 9C60 3 140 3 198 9"
-                    stroke="#f4733d"
-                    strokeWidth="5"
-                    strokeLinecap="round"
-                    opacity="0.5"
-                  />
-                </svg>
-              </span>{" "}
-              dimulai dari sini.
-            </h1>
-
-            <p className="mt-5 text-base sm:text-lg text-[#2a1220]/65 max-w-lg leading-relaxed">
-              Skincare BPOM dengan bahan aktif klinis — diformulasikan untuk
-              kulit Indonesia. Tanpa merkuri, tanpa janji palsu.{" "}
-              <span className="font-bold text-[#2a1220]">
-                50.000+ perempuan
-              </span>{" "}
-              sudah membuktikannya.
-            </p>
-
-            <div className="mt-7 flex flex-wrap items-center gap-3">
-              <Link
-                href="/products"
-                className="group inline-flex items-center gap-2 bg-[#2a1220] text-white font-bold px-7 py-3.5 rounded-full hover:bg-[#f4733d] transition-all shadow-xl shadow-[#2a1220]/25 hover:shadow-orange-500/30 hover:-translate-y-0.5"
-              >
-                Belanja Sekarang
-                <span className="group-hover:translate-x-1 transition-transform">
-                  →
-                </span>
-              </Link>
-              <Link
-                href="#best-seller"
-                className="inline-flex items-center gap-2 bg-white/80 backdrop-blur font-bold px-7 py-3.5 rounded-full border border-[#2a1220]/15 text-[#2a1220] hover:border-[#f4733d] hover:text-[#f4733d] transition-all"
-              >
-                ▶ Lihat Best Seller
-              </Link>
-            </div>
-
-            {/* stats + avatars */}
-            <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4">
-              <div className="flex items-center gap-3">
-                <div className="flex -space-x-2.5">
-                  {["N", "S", "R", "+"].map((t, i) => (
-                    <span
-                      key={i}
-                      className={`w-9 h-9 rounded-full grid place-items-center text-xs font-extrabold text-white border-2 border-[#fff8f3] shadow ${
-                        i === 3
-                          ? "bg-[#2a1220]"
-                          : `bg-gradient-to-br ${TESTIMONIALS[i % 3].color}`
-                      }`}
-                    >
-                      {t === "+" ? "50k" : t}
-                    </span>
-                  ))}
-                </div>
-                <div className="text-[13px] leading-tight">
-                  <div className="text-amber-500 font-bold tracking-wide">
-                    ★★★★★ <span className="text-[#2a1220]">4.9/5</span>
-                  </div>
-                  <div className="text-[#2a1220]/60 font-medium">
-                    dari 12.400+ ulasan
-                  </div>
-                </div>
+    <AurelleChoreo>
+      <div className="bg-[#F7F7F4] text-[#070707]">
+        {/* ============ 1. HERO — multiply photo, poster wordmark (300svh) ============ */}
+        <section className="stage" style={{ height: "300svh" }}>
+          <div className="stage-pin bg-[#F7F7F4]">
+            {heroImg && (
+              <div className="hero-photo absolute inset-0">
+                <Image src={heroImg} alt={heroTitle} fill className="object-cover" priority unoptimized />
               </div>
-              <div className="hidden sm:block w-px h-10 bg-[#2a1220]/10" />
-              <div className="flex gap-6 text-[13px]">
-                <div>
-                  <p className="text-lg font-black text-[#2a1220]">100%</p>
-                  <p className="text-[#2a1220]/60 font-medium">BPOM Resmi</p>
-                </div>
-                <div>
-                  <p className="text-lg font-black text-[#2a1220]">24 Jam</p>
-                  <p className="text-[#2a1220]/60 font-medium">Pengiriman</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right visual */}
-          <div className="relative mx-auto w-full max-w-[480px] animate-fade-up">
-            <div className="relative rounded-[32px] overflow-hidden shadow-2xl shadow-rose-500/20 border-[6px] border-white rotate-2 hover:rotate-0 transition-transform duration-500">
-              <div className="relative aspect-[4/5] bg-gradient-to-br from-orange-100 to-rose-100">
-                {heroBanner ? (
-                  <Image
-                    src={imageUrl(heroBanner.imageKey)}
-                    alt={heroBanner.title}
-                    fill
-                    className="object-cover"
-                    priority
-                    unoptimized
-                  />
-                ) : featuredProducts[0]?.images[0] ? (
-                  <Image
-                    src={imageUrl(featuredProducts[0].images[0].key)}
-                    alt={featuredProducts[0].name}
-                    fill
-                    className="object-cover"
-                    priority
-                    unoptimized
-                  />
-                ) : (
-                  <div className="w-full h-full grid place-items-center text-8xl">
-                    🧴
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#2a1220]/50 via-transparent to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
-                  <div className="text-white">
-                    <p className="text-[11px] font-bold tracking-[0.2em] uppercase opacity-80">
-                      Best Seller
-                    </p>
-                    <p className="font-extrabold text-lg leading-tight">
-                      {heroBanner?.title ?? featuredProducts[0]?.name ?? "Glow Series"}
-                    </p>
-                  </div>
-                  <Link
-                    href="/products"
-                    className="bg-white text-[#2a1220] text-sm font-bold px-4 py-2 rounded-full hover:bg-[#f4733d] hover:text-white transition whitespace-nowrap"
-                  >
-                    Shop →
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            {/* floating cards */}
-            <div className="absolute -left-4 sm:-left-10 top-8 bg-white/90 backdrop-blur rounded-2xl shadow-xl shadow-orange-500/10 border border-white px-4 py-3 flex items-center gap-3 animate-float">
-              <span className="w-10 h-10 rounded-xl bg-green-100 grid place-items-center text-xl">
-                🛡️
-              </span>
-              <div>
-                <p className="text-[13px] font-extrabold text-[#2a1220]">
-                  BPOM Certified
-                </p>
-                <p className="text-[11px] text-[#2a1220]/60 font-medium">
-                  Aman & teruji klinis
-                </p>
-              </div>
-            </div>
-            <div className="absolute -right-3 sm:-right-8 bottom-16 bg-white/90 backdrop-blur rounded-2xl shadow-xl shadow-rose-500/10 border border-white px-4 py-3 flex items-center gap-3 animate-float-slow">
-              <span className="w-10 h-10 rounded-xl bg-amber-100 grid place-items-center text-xl">
-                🚚
-              </span>
-              <div>
-                <p className="text-[13px] font-extrabold text-[#2a1220]">
-                  Gratis Ongkir
-                </p>
-                <p className="text-[11px] text-[#2a1220]/60 font-medium">
-                  Min. belanja Rp150rb
-                </p>
-              </div>
-            </div>
-            <div className="absolute -bottom-5 left-8 bg-[#2a1220] text-white rounded-2xl shadow-xl px-4 py-3 flex items-center gap-3 rotate-[-2deg]">
-              <span className="text-2xl">💬</span>
-              <div>
-                <p className="text-[13px] font-extrabold">Konsultasi Gratis</p>
-                <p className="text-[11px] text-white/60 font-medium">
-                  via WhatsApp CS
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* marquee */}
-        <div className="bg-[#2a1220] py-3.5 overflow-hidden -rotate-1 scale-[1.02] shadow-lg">
-          <div className="flex w-max animate-marquee gap-0">
-            {[...TRUST_ITEMS, ...TRUST_ITEMS].map((item, i) => (
+            )}
+            <div className="hero-type absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
               <span
-                key={i}
-                className="text-white/90 text-sm font-bold tracking-wide px-6 whitespace-nowrap"
+                className="script-accent text-2xl md:text-3xl mb-4"
+                style={{ transform: "rotate(-2deg)" }}
               >
-                {item} <span className="ml-6 text-[#f4733d]">✦</span>
+                batch no. 042 — untuk kulit Indonesia
               </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ============ KATEGORI ============ */}
-      {categories.length > 0 && (
-        <section id="kategori" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 md:pt-20">
-          <div className="flex items-end justify-between mb-7">
-            <div>
-              <p className="text-[12px] font-extrabold tracking-[0.22em] uppercase text-[#f4733d] mb-2">
-                ✦ Shop by category
-              </p>
-              <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-[#2a1220]">
-                Mau rawat apa hari ini?
-              </h2>
-            </div>
-            <Link
-              href="/products"
-              className="hidden sm:inline-flex text-sm font-bold text-[#2a1220] hover:text-[#f4733d] transition"
-            >
-              Lihat semua →
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-            {categories.map((cat, i) => (
-              <Link
-                key={cat.id}
-                href={`/categories/${cat.slug}`}
-                className="group bg-white rounded-3xl border border-[#2a1220]/8 p-4 text-center shadow-sm hover:shadow-xl hover:shadow-orange-500/10 hover:-translate-y-1.5 hover:border-[#f4733d]/40 transition-all duration-300"
+              <h1
+                className="wordmark"
+                style={{ fontSize: "min(clamp(3.5rem, 34vw, 20rem), calc(88vw / (8 * .60)))" }}
               >
-                <span className="mx-auto w-12 h-12 rounded-2xl grid place-items-center text-2xl mb-2.5 bg-gradient-to-br from-[#fef3ee] to-[#fde7db] group-hover:scale-110 group-hover:rotate-6 transition-transform">
-                  {CATEGORY_EMOJI[i % CATEGORY_EMOJI.length]}
-                </span>
-                <span className="block text-[13px] font-bold text-[#2a1220] leading-tight">
-                  {cat.name}
-                </span>
-              </Link>
-            ))}
+                SKINSYNC
+              </h1>
+              <p className="furniture mt-6 text-[#3b3b38]">
+                Niacinamide 5% — 30 ml — BPOM RI
+              </p>
+            </div>
+            <div className="absolute bottom-0 inset-x-0 px-4 sm:px-8 pb-5 pt-10 flex items-end justify-between gap-4 furniture text-[#3b3b38]">
+              <span data-rev style={{ ["--d" as string]: "40ms" }}>No. 01 — Pagi &amp; malam</span>
+              <span data-rev className="hidden sm:inline" style={{ ["--d" as string]: "80ms" }}>500 botol per batch</span>
+              <span data-rev style={{ ["--d" as string]: "120ms" }}> Scroll — 01/03</span>
+            </div>
           </div>
         </section>
-      )}
 
-      {/* ============ PRODUK UNGGULAN ============ */}
-      <section id="best-seller" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 md:pt-20">
-        <div className="relative overflow-hidden rounded-[32px] bg-[#2a1220] px-6 sm:px-10 py-10 sm:py-12 mb-8">
-          <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-[#f4733d]/30 blur-3xl" />
-          <div className="absolute -bottom-24 -left-10 w-72 h-72 rounded-full bg-[#7c3aed]/30 blur-3xl" />
-          <div className="relative flex flex-wrap items-center justify-between gap-5">
-            <div>
-              <p className="text-[12px] font-extrabold tracking-[0.22em] uppercase text-amber-300 mb-2">
-                🔥 Paling laris minggu ini
-              </p>
-              <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-white">
-                Best Seller yang selalu restock
-              </h2>
-              <p className="text-white/60 mt-2 font-medium">
-                Rating tertinggi dari ribuan pembeli terverifikasi.
-              </p>
-            </div>
-            <Link
-              href="/products"
-              className="inline-flex items-center gap-2 bg-white text-[#2a1220] font-bold px-6 py-3 rounded-full hover:bg-[#f4733d] hover:text-white transition-all shadow-lg"
-            >
-              Lihat semua produk →
-            </Link>
-          </div>
-        </div>
-
-        {featuredProducts.length === 0 ? (
-          <div className="text-center py-16 text-[#2a1220]/40 bg-white rounded-3xl border border-dashed border-[#2a1220]/20">
-            Belum ada produk tersedia.
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {featuredProducts.map((product, idx) => {
-              const firstVariant = product.variants[0];
-              const firstImage = product.images[0];
-              const discount = firstVariant?.comparePrice
-                ? Math.round(
-                    ((firstVariant.comparePrice - firstVariant.price) /
-                      firstVariant.comparePrice) *
-                      100
-                  )
-                : 0;
-
-              return (
-                <Link
-                  key={product.id}
-                  href={`/products/${product.slug}`}
-                  className="group bg-white rounded-[24px] border border-[#2a1220]/8 overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-orange-500/15 hover:-translate-y-1.5 transition-all duration-300"
-                >
-                  <div className="relative aspect-square bg-gradient-to-br from-[#fef3ee] to-[#fde7db] overflow-hidden">
-                    {firstImage ? (
-                      <Image
-                        src={imageUrl(firstImage.key)}
-                        alt={firstImage.altText ?? product.name}
-                        fill
-                        className="object-cover group-hover:scale-110 transition-transform duration-500"
-                        unoptimized
-                      />
-                    ) : (
-                      <div className="w-full h-full grid place-items-center text-6xl">
-                        🧴
-                      </div>
-                    )}
-                    <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-                      {idx < 3 && (
-                        <span className="bg-[#2a1220] text-white text-[11px] font-extrabold px-2.5 py-1 rounded-full">
-                          #{idx + 1} BEST SELLER
-                        </span>
-                      )}
-                      {discount > 0 && (
-                        <span className="bg-[#f4733d] text-white text-[11px] font-extrabold px-2.5 py-1 rounded-full w-fit">
-                          -{discount}%
-                        </span>
-                      )}
-                    </div>
-                    <div className="absolute inset-x-3 bottom-3 translate-y-14 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                      <span className="block text-center bg-[#2a1220]/90 backdrop-blur text-white text-[13px] font-bold py-2.5 rounded-full">
-                        Lihat Detail →
-                      </span>
-                    </div>
-                  </div>
-                  <div className="p-4">
-                    <p className="text-[11px] font-bold tracking-wider uppercase text-[#f4733d] mb-1 truncate">
-                      {product.category?.name ?? "Skincare"}
-                    </p>
-                    <h3 className="text-sm font-bold text-[#2a1220] line-clamp-2 mb-2 min-h-[40px] leading-snug">
-                      {product.name}
-                    </h3>
-                    {firstVariant && (
-                      <div className="flex items-baseline gap-2 flex-wrap">
-                        <span className="text-[15px] font-black text-[#2a1220]">
-                          {formatRupiah(firstVariant.price)}
-                        </span>
-                        {firstVariant.comparePrice && (
-                          <span className="text-xs text-[#2a1220]/40 line-through font-medium">
-                            {formatRupiah(firstVariant.comparePrice)}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                    <div className="flex items-center gap-1.5 mt-2">
-                      <span className="text-amber-400 text-sm">★</span>
-                      <span className="text-xs font-bold text-[#2a1220]">
-                        {product.reviewCount > 0
-                          ? product.avgRating.toFixed(1)
-                          : "Baru"}
-                      </span>
-                      <span className="text-xs text-[#2a1220]/50 font-medium">
-                        ({product.reviewCount} ulasan)
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        )}
-      </section>
-
-      {/* ============ RITUAL ============ */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 md:pt-20">
-        <div className="grid md:grid-cols-3 gap-4">
-          {RITUAL_STEPS.map((s) => (
-            <div
-              key={s.no}
-              className="relative bg-white rounded-[28px] border border-[#2a1220]/8 p-7 overflow-hidden hover:shadow-xl hover:shadow-orange-500/10 hover:-translate-y-1 transition-all group"
-            >
-              <span className="absolute -top-2 right-4 text-[72px] font-black text-[#fde7db] group-hover:text-[#f4733d]/20 transition-colors select-none">
-                {s.no}
-              </span>
-              <span className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-[#fef3ee] to-[#fde7db] grid place-items-center text-2xl mb-4">
-                {s.emoji}
-              </span>
-              <h3 className="relative text-xl font-black text-[#2a1220]">
-                {s.title}
-              </h3>
-              <p className="relative text-sm text-[#2a1220]/60 font-medium mt-1.5 leading-relaxed">
-                {s.desc}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ============ SKIN QUIZ CTA ============ */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 md:pt-20">
-        <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-[#f4733d] via-[#e14b7a] to-[#7c3aed] p-8 sm:p-12 text-white shadow-2xl shadow-rose-500/25">
-          <div className="absolute inset-0 texture-dots opacity-20" />
-          <div className="absolute -top-16 -right-16 text-[200px] opacity-15 select-none rotate-12">
-            ✨
-          </div>
-          <div className="relative grid lg:grid-cols-2 gap-8 items-center">
-            <div>
-              <p className="text-[12px] font-extrabold tracking-[0.22em] uppercase text-white/80 mb-3">
-                🤍 Bingung mulai dari mana?
-              </p>
-              <h2 className="text-3xl sm:text-[40px] leading-tight font-black tracking-tight">
-                Temukan skincare yang cocok untuk kulitmu dalam 1 menit.
-              </h2>
-              <p className="mt-3 text-white/80 font-medium max-w-md">
-                Isi profil kulit di akunmu — jenis kulit & alergi — biar
-                rekomendasi produk makin pas.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Link
-                  href="/account"
-                  className="bg-white text-[#2a1220] font-bold px-7 py-3.5 rounded-full hover:bg-[#2a1220] hover:text-white transition-all shadow-lg"
-                >
-                  Isi Profil Kulit →
-                </Link>
-                <Link
-                  href="/products"
-                  className="border-2 border-white/40 text-white font-bold px-7 py-3 rounded-full hover:bg-white/10 transition-all"
-                >
-                  Jelajahi Katalog
-                </Link>
+        {/* ============ 2. REVEAL — bottom-up clip, difference headline (320svh) ============ */}
+        <section className="stage" style={{ height: "320svh" }}>
+          <div className="stage-pin bg-[#E4E5E0]">
+            {revealImg && (
+              <div className="reveal-photo absolute inset-0">
+                <Image src={revealImg} alt="Rangkaian SkinSync" fill className="object-cover" unoptimized />
               </div>
+            )}
+            <h2 className="reveal-headline absolute inset-0 flex items-center justify-center text-center px-6 display-tight text-5xl sm:text-7xl md:text-8xl font-medium">
+              <span className="rev-words max-w-5xl">
+                <W text="Cerah yang tenang," /> <em className="italic font-normal"><W text="bukan yang instan." /></em>
+              </span>
+            </h2>
+            <div className="reveal-caption absolute bottom-0 inset-x-0 px-4 sm:px-8 pb-5 flex items-end justify-between furniture">
+              <span className="text-white">Niacinamide 5% — 30 ml</span>
+              <span className="hidden sm:inline text-white">Batch 042 — 500 botol</span>
             </div>
-            <div className="hidden lg:grid grid-cols-2 gap-3">
+          </div>
+        </section>
+
+        {/* ============ 3. BLUSH STATEMENT ============ */}
+        <section className="bg-[#F3D6DC]">
+          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-20 md:py-28">
+            <p className="furniture mb-6" data-rev>Pernyataan — 01</p>
+            <h2 className="display-tight text-4xl sm:text-6xl md:text-7xl font-medium max-w-4xl">
+              <span className="rev-words"><W text="Tiga langkah," /> <em className="italic font-normal"><W text="tanpa drama." /></em></span>
+            </h2>
+            <p className="script-accent text-2xl md:text-3xl mt-6" style={{ transform: "rotate(1.5deg)" }} data-rev>
+              dipakai pelan-pelan, setiap hari
+            </p>
+            <div className="grid sm:grid-cols-3 gap-8 mt-14 pt-10 border-t border-[#070707]">
               {[
-                ["Berminyak", "💧 Oil control"],
-                ["Kering", "🧴 Extra moist"],
-                ["Sensitif", "🌿 Calming"],
-                ["Berjerawat", "✨ Acne care"],
-              ].map(([t, d]) => (
-                <div
-                  key={t}
-                  className="bg-white/15 backdrop-blur border border-white/25 rounded-3xl p-5 hover:bg-white/25 transition"
-                >
-                  <p className="font-extrabold text-lg">{t}</p>
-                  <p className="text-white/75 text-sm font-medium">{d}</p>
+                ["Bersihkan", "Gentle cleanser pH 5.5. Satu menit, air suam-suam kuku, tanpa menggesek."],
+                ["Perbaiki", "Niacinamide 5% untuk bekas dan pori. Tiga tetes, kulit setengah lembap."],
+                ["Lindungi", "Ceramide dan SPF 50 tiap pagi. Dua ruas jari, ulangi bila di luar."],
+              ].map(([t, d], i) => (
+                <div key={t} data-rev style={{ ["--d" as string]: `${40 + i * 50}ms` }}>
+                  <p className="furniture mb-3">0{i + 1} — {t}</p>
+                  <p className="italic leading-relaxed text-[15px]">{d}</p>
                 </div>
               ))}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ============ TESTIMONI ============ */}
-      <section id="testimoni" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 md:pt-20">
-        <div className="text-center mb-8">
-          <p className="text-[12px] font-extrabold tracking-[0.22em] uppercase text-[#f4733d] mb-2">
-            ★ Kata mereka
-          </p>
-          <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-[#2a1220]">
-            50.000+ kulit bahagia
-          </h2>
-          <p className="text-[#2a1220]/60 font-medium mt-2">
-            Ulasan jujur dari pembeli terverifikasi.
-          </p>
-        </div>
-        <div className="grid md:grid-cols-3 gap-4 sm:gap-6">
-          {TESTIMONIALS.map((t) => (
-            <figure
-              key={t.name}
-              className="bg-white rounded-[28px] border border-[#2a1220]/8 p-7 shadow-sm hover:shadow-xl hover:shadow-orange-500/10 hover:-translate-y-1 transition-all"
-            >
-              <div className="text-amber-400 tracking-widest mb-3">★★★★★</div>
-              <blockquote className="text-[15px] leading-relaxed text-[#2a1220]/80 font-medium">
-                “{t.text}”
-              </blockquote>
-              <figcaption className="flex items-center gap-3 mt-6">
-                <span
-                  className={`w-11 h-11 rounded-full grid place-items-center text-white font-extrabold bg-gradient-to-br ${t.color} shadow`}
-                >
-                  {t.initial}
-                </span>
-                <div>
-                  <p className="text-sm font-extrabold text-[#2a1220]">
-                    {t.name}
-                  </p>
-                  <p className="text-xs text-[#2a1220]/55 font-medium">
-                    {t.role} · Pembeli Terverifikasi ✓
-                  </p>
+        {/* ============ INDEKS KATEGORI — ruled rows ============ */}
+        {categories.length > 0 && (
+          <section className="bg-[#F1F1ED]">
+            <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 md:py-24">
+              <div className="flex items-baseline justify-between mb-2" data-rev>
+                <p className="furniture">Indeks — kategori</p>
+                <Link href="/products" className="furniture underline underline-offset-4">Semua produk</Link>
+              </div>
+              <div>
+                {categories.map((cat, i) => (
+                  <Link
+                    key={cat.id}
+                    href={`/categories/${cat.slug}`}
+                    data-rev
+                    style={{ ["--d" as string]: `${40 + i * 30}ms` }}
+                    className="group flex items-baseline gap-4 sm:gap-8 py-4 border-t border-[#070707] last:border-b"
+                  >
+                    <span className="furniture text-[#EF6F79] w-8 shrink-0">0{i + 1}</span>
+                    <span className="text-2xl sm:text-4xl font-medium tracking-[-0.02em] group-hover:italic transition-all">{cat.name}</span>
+                    <span className="ml-auto italic text-sm text-[#070707]/60 whitespace-nowrap">{cat._count.products} produk</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ============ 4. RITUAL — near-black (360svh) ============ */}
+        <section className="stage bg-[#070707] text-[#F7F7F4]" data-ritual style={{ height: "360svh" }}>
+          <div className="stage-pin bg-[#070707] text-[#F7F7F4]">
+            <div className="h-full max-w-7xl mx-auto px-4 sm:px-8 py-20 md:py-0 grid md:grid-cols-2 gap-10 items-center">
+              <div>
+                <p className="furniture text-[#F7F7F4]/50 mb-6">Ritual — 02</p>
+                <h2 className="display-tight text-4xl sm:text-6xl font-medium">
+                  Empat menit, <em className="italic font-normal">pagi dan malam.</em>
+                </h2>
+                <div className="mt-10">
+                  {RITUAL.map((s, i) => (
+                    <div key={s.no} className="ritual-row flex items-baseline gap-4 sm:gap-6 py-4 border-t border-white/25 last:border-b">
+                      <span className="furniture text-[#EF6F79] w-8">{s.no}</span>
+                      <span className="text-xl sm:text-2xl font-semibold">{s.name}</span>
+                      <span className="ml-auto italic text-sm text-[#F7F7F4]/70 text-right">{s.time}</span>
+                    </div>
+                  ))}
+                  <p className="italic text-sm text-[#F7F7F4]/60 mt-4 max-w-md">{RITUAL[0].desc} Scroll untuk menyalakan tiap baris.</p>
                 </div>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-      </section>
-
-      {/* ============ CTA AKHIR ============ */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">
-        <div className="relative overflow-hidden rounded-[32px] bg-[#2a1220] px-8 py-12 sm:p-14 text-center">
-          <div className="absolute -top-24 left-1/4 w-80 h-80 rounded-full bg-[#f4733d]/25 blur-3xl" />
-          <div className="absolute -bottom-24 right-1/4 w-80 h-80 rounded-full bg-[#7c3aed]/25 blur-3xl" />
-          <p className="relative text-5xl mb-4">💌</p>
-          <h2 className="relative text-3xl sm:text-4xl font-black tracking-tight text-white max-w-2xl mx-auto leading-tight">
-            Siap punya kulit sehat impianmu?
-          </h2>
-          <p className="relative text-white/60 font-medium mt-3 max-w-xl mx-auto">
-            Daftar dengan nomor WhatsApp — tanpa password, tanpa ribet.
-            Checkout aman dengan Midtrans.
-          </p>
-          <div className="relative mt-7 flex flex-wrap justify-center gap-3">
-            <Link
-              href="/login"
-              className="bg-gradient-to-r from-[#f4733d] to-[#e14b7a] text-white font-bold px-8 py-3.5 rounded-full hover:opacity-90 hover:-translate-y-0.5 transition-all shadow-xl shadow-orange-500/30"
-            >
-              Daftar / Masuk Sekarang ✨
-            </Link>
-            <Link
-              href="/faq"
-              className="text-white font-bold px-8 py-3.5 rounded-full border border-white/20 hover:bg-white/10 transition-all"
-            >
-              Baca FAQ
-            </Link>
+              </div>
+              <div className="relative mx-auto w-full max-w-[420px]">
+                <div className="relative aspect-[4/5] overflow-hidden bg-[#1a1a18]">
+                  {stillImg && <Image src={stillImg} alt="Still produk" fill className="ritual-still object-cover" unoptimized />}
+                </div>
+                <span className="absolute bottom-4 left-4 bg-[#EF6F79] text-white furniture px-4 py-2">
+                  Batch 042 — 30 ml
+                </span>
+              </div>
+            </div>
           </div>
-          <p className="relative text-white/40 text-xs font-medium mt-6">
-            🔒 Pembayaran aman · 📦 Garansi produk sampai · 💬 CS siap membantu
-          </p>
-        </div>
-      </section>
-    </div>
+        </section>
+
+        {/* ============ 5. PAPER — price table ============ */}
+        <section id="harga" className="bg-[#F1F1ED]">
+          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 md:py-24">
+            <p className="furniture mb-6" data-rev>Harga — 03</p>
+            <h2 className="display-tight text-4xl sm:text-6xl font-medium max-w-3xl">
+              <span className="rev-words"><W text="Harga jujur," /> <em className="italic font-normal"><W text="isi penuh." /></em></span>
+            </h2>
+            <div className="mt-12">
+              {featuredProducts.map((p, i) => {
+                const v = p.variants[0];
+                return (
+                  <Link
+                    key={p.id}
+                    href={`/products/${p.slug}`}
+                    data-rev
+                    style={{ ["--d" as string]: `${40 + i * 30}ms` }}
+                    className="group grid grid-cols-[1fr_auto] sm:grid-cols-[auto_1fr_auto_auto] items-baseline gap-x-6 gap-y-1 py-4 border-t border-[#070707] last:border-b"
+                  >
+                    <span className="furniture text-[#EF6F79]">0{i + 1}</span>
+                    <span>
+                      <span className="block text-lg sm:text-xl font-semibold leading-snug group-hover:italic transition-all">{p.name}</span>
+                      <span className="block italic text-sm text-[#070707]/60">{p.category?.name ?? "Skincare"} — {v ? `${v.name}` : "satu ukuran"}</span>
+                    </span>
+                    <span className="text-lg sm:text-xl font-semibold text-[#EF6F79] whitespace-nowrap">
+                      {v ? formatRupiah(v.price) : "—"}
+                    </span>
+                    <span className="hidden sm:inline furniture underline underline-offset-4">Lihat</span>
+                  </Link>
+                );
+              })}
+            </div>
+            <div className="mt-10 flex flex-wrap items-center gap-6" data-rev>
+              <Link
+                href="/products"
+                className="bg-[#EF6F79] text-white furniture px-8 py-4 hover:bg-[#070707] transition-colors"
+              >
+                Lihat katalog lengkap
+              </Link>
+              <span className="script-accent text-2xl" style={{ transform: "rotate(-1.5deg)" }}>
+                mulai dari batch kecil saja
+              </span>
+            </div>
+          </div>
+        </section>
+
+        {/* ============ TESTIMONI — italic pull quotes ============ */}
+        <section className="bg-[#F7F7F4]">
+          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 md:py-24">
+            <p className="furniture mb-10" data-rev>Catatan pemakai — 04</p>
+            <div className="grid md:grid-cols-3 gap-10">
+              {[
+                ["Nadia P. — kombinasi, Jakarta", "Dua minggu, bekas memudar. Teksturnya ringan, tidak lengket."],
+                ["Salsa B. — sensitif, Bandung", "Kulitku rewel, tapi tidak perih sama sekali. Kemasannya rapi."],
+                ["Rina A. — kering, Surabaya", "Pagi hari kulit masih lembap. Resi dikirim cepat via WhatsApp."],
+              ].map(([who, quote], i) => (
+                <figure key={who} data-rev style={{ ["--d" as string]: `${40 + i * 50}ms` }}>
+                  <div className="border-t border-[#070707] pt-6">
+                    <blockquote className="italic text-xl leading-snug">“{quote}”</blockquote>
+                    <figcaption className="furniture mt-4 text-[#070707]/60">{who}</figcaption>
+                  </div>
+                </figure>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ============ 6. BLUSH FAQ ============ */}
+        <section className="bg-[#F5D9DF]">
+          <div className="max-w-4xl mx-auto px-4 sm:px-8 py-16 md:py-24">
+            <p className="furniture mb-6" data-rev>FAQ — 05</p>
+            <h2 className="display-tight text-4xl sm:text-5xl font-medium mb-10">
+              <span className="rev-words"><W text="Yang sering" /> <em className="italic font-normal"><W text="ditanyakan." /></em></span>
+            </h2>
+            <div data-rev>
+              {FAQS.map((f) => (
+                <details key={f.q} className="faq-row">
+                  <summary>
+                    <span className="text-lg font-semibold">{f.q}</span>
+                  </summary>
+                  <p className="faq-a italic text-[15px] leading-relaxed text-[#070707]/75">{f.a}</p>
+                </details>
+              ))}
+            </div>
+            <div className="mt-10 furniture flex flex-wrap gap-x-8 gap-y-2" data-rev>
+              <span>CS — Senin–Sabtu</span>
+              <span>09.00–18.00 WIB</span>
+              <Link href="/faq" className="underline underline-offset-4">Halaman FAQ</Link>
+            </div>
+          </div>
+        </section>
+      </div>
+    </AurelleChoreo>
   );
 }

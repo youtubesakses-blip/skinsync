@@ -81,24 +81,27 @@ export default async function PolicyPage({ params }: PolicyPageProps) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
-      <div>
-        <div className="text-sm text-gray-500 mb-2">
-          <Link href="/" className="hover:text-indigo-600">Beranda</Link>
+    <div className="bg-[#F7F7F4] text-[#070707]">
+      <div className="max-w-4xl mx-auto px-4 sm:px-8 pt-24 pb-20">
+        <p className="furniture text-[#070707]/50 mb-4">
+          <Link href="/" className="hover:italic">Beranda</Link>
           <span className="mx-2">/</span>
-          <span className="text-gray-900 font-medium">Kebijakan</span>
-        </div>
-        <h1 className="text-3xl font-extrabold text-gray-900">{policy.title}</h1>
-        <p className="text-xs text-gray-400 mt-1">Terakhir diperbarui: {policy.lastUpdated}</p>
-      </div>
+          <span className="text-[#070707]">Kebijakan</span>
+        </p>
+        <h1 className="display-tight text-5xl sm:text-6xl font-medium">{policy.title}</h1>
+        <p className="italic text-sm text-[#070707]/50 mt-3">Terakhir diperbarui — {policy.lastUpdated}</p>
 
-      <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
-        {policy.content.map((sec, idx) => (
-          <div key={idx} className="space-y-2">
-            <h2 className="text-base font-bold text-gray-900">{sec.heading}</h2>
-            <p className="text-sm text-gray-600 leading-relaxed">{sec.body}</p>
-          </div>
-        ))}
+        <div className="mt-10 border-t border-[#070707]">
+          {policy.content.map((sec, idx) => (
+            <div key={idx} className="py-6 border-b border-[#070707]/20 grid sm:grid-cols-[80px_1fr] gap-3">
+              <span className="furniture text-[#EF6F79]">0{idx + 1}</span>
+              <div>
+                <h2 className="text-xl font-medium">{sec.heading}</h2>
+                <p className="italic text-[15px] text-[#070707]/70 leading-relaxed mt-2 max-w-2xl">{sec.body}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

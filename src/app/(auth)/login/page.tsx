@@ -139,18 +139,17 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">SkinSync</h1>
-          <p className="mt-2 text-gray-600">
+    <div className="min-h-screen flex items-center justify-center bg-[#F7F7F4] text-[#070707] py-12 px-4">
+      <div className="max-w-md w-full">
+        <p className="furniture text-[#070707]/50 text-center mb-4">Masuk — OTP WhatsApp</p>
+        <h1 className="display-tight text-5xl font-medium text-center">SkinSync<em className="italic font-normal">.</em></h1>
+          <p className="mt-3 italic text-center text-[#070707]/60">
             {step === "phone"
               ? "Masukkan nomor WhatsApp Anda"
-              : "Masukkan kode OTP yang dikirim via WhatsApp"}
+              : "Masukkan kode OTP dari WhatsApp"}
           </p>
-        </div>
 
-        <div className="bg-white shadow rounded-lg p-8">
+        <div className="mt-8 border-y border-[#070707] py-8">
           {step === "phone" ? (
             <form onSubmit={handleRequestOtp} className="space-y-4">
               <div>
@@ -163,7 +162,7 @@ function LoginForm() {
                 <div className="flex">
                   <span
                     aria-hidden="true"
-                    className="inline-flex items-center px-3 border border-r-0 border-gray-300 rounded-l-md bg-gray-100 text-gray-700"
+                    className="inline-flex items-center px-3 border border-r-0 border-[#070707] bg-[#F1F1ED]"
                   >
                     62
                   </span>
@@ -182,7 +181,7 @@ function LoginForm() {
                     placeholder="8123456789"
                     required
                     aria-describedby="phone-hint"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-r-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-3 py-2 border border-[#070707] bg-transparent focus:outline-none focus:border-[#EF6F79]"
                   />
                 </div>
                 <p id="phone-hint" className="mt-1 text-xs text-gray-500">
@@ -199,7 +198,7 @@ function LoginForm() {
               <button
                 type="submit"
                 disabled={loading || !isValidPhone(phone)}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="w-full flex justify-center py-3 px-4 furniture text-white bg-[#EF6F79] hover:bg-[#070707] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? "Mengirim..." : "Kirim OTP via WhatsApp"}
               </button>
@@ -241,7 +240,7 @@ function LoginForm() {
                   placeholder="123456"
                   required
                   autoFocus
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-center text-2xl tracking-widest"
+                  className="w-full px-3 py-2 border border-[#070707] bg-transparent focus:outline-none focus:border-[#EF6F79] text-center text-2xl tracking-widest"
                 />
               </div>
 
@@ -254,7 +253,7 @@ function LoginForm() {
               <button
                 type="submit"
                 disabled={loading || otp.length !== 6}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="w-full flex justify-center py-3 px-4 furniture text-white bg-[#EF6F79] hover:bg-[#070707] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? "Memverifikasi..." : "Verifikasi OTP"}
               </button>

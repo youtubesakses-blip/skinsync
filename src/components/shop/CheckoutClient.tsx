@@ -256,13 +256,13 @@ export default function CheckoutClient({
   return (
     <div className="space-y-6">
       {/* Step Indicator */}
-      <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-gray-100 shadow-sm text-xs sm:text-sm font-semibold">
+      <div className="flex items-center justify-between bg-white p-4 border border-[#070707]/25 text-xs sm:text-sm font-semibold">
         <button
           type="button"
           onClick={() => setStep(1)}
-          className={`flex items-center gap-2 ${step >= 1 ? "text-indigo-600 font-bold" : "text-gray-400"}`}
+          className={`flex items-center gap-2 ${step >= 1 ? "text-[#EF6F79] font-bold" : "text-gray-400"}`}
         >
-          <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${step >= 1 ? "bg-indigo-600 text-white" : "bg-gray-100"}`}>1</span>
+          <span className={`w-6 h-6 flex items-center justify-center text-xs ${step >= 1 ? "bg-[#EF6F79] text-white" : "bg-[#E4E5E0]"}`}>1</span>
           Alamat Pengiriman
         </button>
         <span className="text-gray-300">→</span>
@@ -270,9 +270,9 @@ export default function CheckoutClient({
           type="button"
           disabled={!selectedAddressId}
           onClick={() => setStep(2)}
-          className={`flex items-center gap-2 ${step >= 2 ? "text-indigo-600 font-bold" : "text-gray-400"}`}
+          className={`flex items-center gap-2 ${step >= 2 ? "text-[#EF6F79] font-bold" : "text-gray-400"}`}
         >
-          <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${step >= 2 ? "bg-indigo-600 text-white" : "bg-gray-100"}`}>2</span>
+          <span className={`w-6 h-6 flex items-center justify-center text-xs ${step >= 2 ? "bg-[#EF6F79] text-white" : "bg-[#E4E5E0]"}`}>2</span>
           Pengiriman & Voucher
         </button>
         <span className="text-gray-300">→</span>
@@ -280,28 +280,28 @@ export default function CheckoutClient({
           type="button"
           disabled={step < 2}
           onClick={() => setStep(3)}
-          className={`flex items-center gap-2 ${step === 3 ? "text-indigo-600 font-bold" : "text-gray-400"}`}
+          className={`flex items-center gap-2 ${step === 3 ? "text-[#EF6F79] font-bold" : "text-gray-400"}`}
         >
-          <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${step === 3 ? "bg-indigo-600 text-white" : "bg-gray-100"}`}>3</span>
+          <span className={`w-6 h-6 flex items-center justify-center text-xs ${step === 3 ? "bg-[#EF6F79] text-white" : "bg-[#E4E5E0]"}`}>3</span>
           Konfirmasi & Bayar
         </button>
       </div>
 
       {generalError && (
-        <div className="p-4 bg-red-50 text-red-700 text-sm font-medium rounded-xl border border-red-200">
+        <div className="p-4 bg-red-50 text-red-700 text-sm font-medium border border-red-200">
           {generalError}
         </div>
       )}
 
       {/* STEP 1: Pilih / Tambah Alamat */}
       {step === 1 && (
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+        <div className="bg-white p-6 border border-[#070707]/25 space-y-6">
           <div className="flex items-center justify-between border-b pb-4">
             <h2 className="text-lg font-bold text-gray-900">1. Pilih Alamat Pengiriman</h2>
             <button
               type="button"
               onClick={() => setShowNewAddressModal(!showNewAddressModal)}
-              className="text-xs font-semibold text-indigo-600 hover:underline"
+              className="text-xs font-semibold text-[#EF6F79] hover:underline"
             >
               {showNewAddressModal ? "Tutup Form Alamat" : "+ Tambah Alamat Baru"}
             </button>
@@ -309,7 +309,7 @@ export default function CheckoutClient({
 
           {/* Form Tambah Alamat */}
           {showNewAddressModal && (
-            <form onSubmit={handleCreateAddress} className="p-4 bg-gray-50 rounded-xl space-y-4 border">
+            <form onSubmit={handleCreateAddress} className="p-4 bg-[#F1F1ED] space-y-4 border">
               <h3 className="text-sm font-bold text-gray-800">Form Alamat Baru</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
@@ -320,7 +320,7 @@ export default function CheckoutClient({
                     value={newAddress.label}
                     onChange={(e) => setNewAddress({ ...newAddress, label: e.target.value })}
                     placeholder="Contoh: Rumah, Kantor"
-                    className="w-full text-xs p-2.5 border rounded-lg bg-white"
+                    className="w-full text-xs p-2.5 border bg-white"
                   />
                 </div>
                 <div>
@@ -331,7 +331,7 @@ export default function CheckoutClient({
                     value={newAddress.recipientName}
                     onChange={(e) => setNewAddress({ ...newAddress, recipientName: e.target.value })}
                     placeholder="Nama Lengkap"
-                    className="w-full text-xs p-2.5 border rounded-lg bg-white"
+                    className="w-full text-xs p-2.5 border bg-white"
                   />
                 </div>
                 <div>
@@ -342,7 +342,7 @@ export default function CheckoutClient({
                     value={newAddress.phone}
                     onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value })}
                     placeholder="08xxxxxxxxxx"
-                    className="w-full text-xs p-2.5 border rounded-lg bg-white"
+                    className="w-full text-xs p-2.5 border bg-white"
                   />
                 </div>
                 <div>
@@ -352,7 +352,7 @@ export default function CheckoutClient({
                     required
                     value={newAddress.province}
                     onChange={(e) => setNewAddress({ ...newAddress, province: e.target.value })}
-                    className="w-full text-xs p-2.5 border rounded-lg bg-white"
+                    className="w-full text-xs p-2.5 border bg-white"
                   />
                 </div>
                 <div>
@@ -362,7 +362,7 @@ export default function CheckoutClient({
                     required
                     value={newAddress.city}
                     onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
-                    className="w-full text-xs p-2.5 border rounded-lg bg-white"
+                    className="w-full text-xs p-2.5 border bg-white"
                   />
                 </div>
                 <div>
@@ -374,7 +374,7 @@ export default function CheckoutClient({
                       placeholder="Kecamatan"
                       value={newAddress.district}
                       onChange={(e) => setNewAddress({ ...newAddress, district: e.target.value })}
-                      className="w-2/3 text-xs p-2.5 border rounded-lg bg-white"
+                      className="w-2/3 text-xs p-2.5 border bg-white"
                     />
                     <input
                       type="text"
@@ -382,7 +382,7 @@ export default function CheckoutClient({
                       placeholder="Kode Pos"
                       value={newAddress.postalCode}
                       onChange={(e) => setNewAddress({ ...newAddress, postalCode: e.target.value })}
-                      className="w-1/3 text-xs p-2.5 border rounded-lg bg-white"
+                      className="w-1/3 text-xs p-2.5 border bg-white"
                     />
                   </div>
                 </div>
@@ -395,13 +395,13 @@ export default function CheckoutClient({
                   value={newAddress.addressLine}
                   onChange={(e) => setNewAddress({ ...newAddress, addressLine: e.target.value })}
                   placeholder="Jl. Mawar No. 12, RT 01 / RW 02..."
-                  className="w-full text-xs p-2.5 border rounded-lg bg-white"
+                  className="w-full text-xs p-2.5 border bg-white"
                 />
               </div>
               <button
                 type="submit"
                 disabled={loading}
-                className="py-2.5 px-4 bg-indigo-600 text-white rounded-lg text-xs font-bold hover:bg-indigo-700 transition"
+                className="py-2.5 px-4 bg-[#EF6F79] text-white text-xs font-bold hover:bg-[#070707] transition"
               >
                 {loading ? "Menyimpan..." : "Simpan Alamat Ini"}
               </button>
@@ -416,10 +416,10 @@ export default function CheckoutClient({
                 <div
                   key={addr.id}
                   onClick={() => setSelectedAddressId(addr.id)}
-                  className={`p-4 rounded-xl border cursor-pointer transition flex items-start justify-between ${
+                  className={`p-4 border cursor-pointer transition flex items-start justify-between ${
                     isSelected
-                      ? "border-indigo-600 bg-indigo-50/50 shadow-sm"
-                      : "border-gray-200 hover:border-gray-300"
+                      ? "border-[#070707] bg-[#F5D9DF]/40"
+                      : "border-[#070707]/25 hover:border-[#070707]"
                   }`}
                 >
                   <div className="space-y-1 text-xs">
@@ -443,7 +443,7 @@ export default function CheckoutClient({
                     name="addressSelection"
                     checked={isSelected}
                     onChange={() => setSelectedAddressId(addr.id)}
-                    className="mt-1 text-indigo-600"
+                    className="mt-1 text-[#EF6F79]"
                   />
                 </div>
               );
@@ -455,7 +455,7 @@ export default function CheckoutClient({
               type="button"
               disabled={!selectedAddressId}
               onClick={() => setStep(2)}
-              className="py-3 px-8 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition disabled:opacity-40"
+              className="py-3 px-8 bg-[#EF6F79] text-white text-sm font-bold hover:bg-[#070707] transition disabled:opacity-40"
             >
               Lanjut ke Pengiriman & Voucher →
             </button>
@@ -465,7 +465,7 @@ export default function CheckoutClient({
 
       {/* STEP 2: Ongkir & Voucher */}
       {step === 2 && (
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+        <div className="bg-white p-6 border border-[#070707]/25 space-y-6">
           <div className="border-b pb-4">
             <h2 className="text-lg font-bold text-gray-900">2. Pilih Zona Pengiriman & Masukkan Voucher</h2>
           </div>
@@ -482,17 +482,17 @@ export default function CheckoutClient({
                   <div
                     key={z.id}
                     onClick={() => setSelectedZoneId(z.id)}
-                    className={`p-3.5 rounded-xl border cursor-pointer transition flex justify-between items-center ${
+                    className={`p-3.5 border cursor-pointer transition flex justify-between items-center ${
                       isSelected
-                        ? "border-indigo-600 bg-indigo-50/50 shadow-sm"
-                        : "border-gray-200 hover:border-gray-300"
+                        ? "border-[#070707] bg-[#F5D9DF]/40"
+                        : "border-[#070707]/25 hover:border-[#070707]"
                     }`}
                   >
                     <div>
                       <p className="text-xs font-bold text-gray-900">{z.name}</p>
                       <p className="text-[11px] text-gray-500">Estimasi: {z.estimatedDays || "2-4 hari"}</p>
                     </div>
-                    <span className="text-sm font-bold text-indigo-600">{formatRupiah(z.cost)}</span>
+                    <span className="text-sm font-bold text-[#EF6F79]">{formatRupiah(z.cost)}</span>
                   </div>
                 );
               })}
@@ -510,13 +510,13 @@ export default function CheckoutClient({
                 value={voucherCodeInput}
                 onChange={(e) => setVoucherCodeInput(e.target.value.toUpperCase())}
                 placeholder="Contoh: WELCOME10 atau GRATISONGKIR"
-                className="w-full text-xs p-2.5 border rounded-lg uppercase font-mono font-bold bg-white"
+                className="w-full text-xs p-2.5 border uppercase font-mono font-bold bg-white"
               />
               <button
                 type="button"
                 onClick={handleApplyVoucher}
                 disabled={loading || !voucherCodeInput.trim()}
-                className="py-2.5 px-5 bg-gray-900 text-white rounded-lg text-xs font-bold hover:bg-black transition disabled:opacity-40"
+                className="py-2.5 px-5 bg-[#070707] text-white text-xs font-bold hover:bg-black transition disabled:opacity-40"
               >
                 Terapkan
               </button>
@@ -539,7 +539,7 @@ export default function CheckoutClient({
               value={customerNote}
               onChange={(e) => setCustomerNote(e.target.value)}
               placeholder="Contoh: Tolong bungkus ekstra aman, terima kasih!"
-              className="w-full text-xs p-2.5 border rounded-lg bg-white"
+              className="w-full text-xs p-2.5 border bg-white"
             />
           </div>
 
@@ -554,7 +554,7 @@ export default function CheckoutClient({
             <button
               type="button"
               onClick={() => setStep(3)}
-              className="py-3 px-8 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition"
+              className="py-3 px-8 bg-[#EF6F79] text-white text-sm font-bold hover:bg-[#070707] transition"
             >
               Lanjut ke Konfirmasi →
             </button>
@@ -564,7 +564,7 @@ export default function CheckoutClient({
 
       {/* STEP 3: Ringkasan & Bayar */}
       {step === 3 && (
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+        <div className="bg-white p-6 border border-[#070707]/25 space-y-6">
           <div className="border-b pb-4">
             <h2 className="text-lg font-bold text-gray-900">3. Konfirmasi Pesanan & Pembayaran</h2>
           </div>
@@ -586,7 +586,7 @@ export default function CheckoutClient({
           </div>
 
           {/* Rincian Biaya */}
-          <div className="bg-gray-50 p-4 rounded-xl space-y-2 text-xs border">
+          <div className="bg-[#F1F1ED] p-4 space-y-2 text-xs border">
             <div className="flex justify-between text-gray-600">
               <span>Subtotal Produk</span>
               <span className="font-semibold text-gray-800">{formatRupiah(subtotal)}</span>
@@ -603,7 +603,7 @@ export default function CheckoutClient({
             )}
             <div className="border-t pt-2 flex justify-between items-baseline text-sm font-extrabold text-gray-900">
               <span>Grand Total</span>
-              <span className="text-xl text-indigo-600">{formatRupiah(grandTotal)}</span>
+              <span className="text-xl text-[#EF6F79]">{formatRupiah(grandTotal)}</span>
             </div>
           </div>
 
@@ -619,7 +619,7 @@ export default function CheckoutClient({
               type="button"
               disabled={loading}
               onClick={handlePayNow}
-              className="py-3.5 px-8 bg-indigo-600 text-white rounded-xl text-sm font-extrabold hover:bg-indigo-700 transition disabled:opacity-50 shadow-md"
+              className="py-3.5 px-8 bg-[#EF6F79] text-white text-sm font-extrabold hover:bg-[#070707] transition disabled:opacity-50"
             >
               {loading ? "Memproses Pembayaran..." : `Bayar Sekarang (${formatRupiah(grandTotal)})`}
             </button>

@@ -1,5 +1,5 @@
 // src/app/cart/page.tsx
-// Halaman Keranjang Belanja
+// Keranjang — Aurelle.
 
 import { getSession } from "@/lib/auth";
 import { getOrCreateCart } from "@/server/services/cart";
@@ -10,36 +10,25 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Keranjang Belanja — SkinSync",
-  description: "Tinjau produk dalam keranjang belanja Anda sebelum melanjutkan ke checkout.",
+  description: "Periksa produk pilihan sebelum checkout.",
 };
 
 export default async function CartPage() {
   const session = await getSession();
-  if (!session) {
-    redirect("/login?next=/cart");
-  }
+  if (!session) redirect("/login?next=/cart");
 
   const cart = await getOrCreateCart(session.userId);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        {/* Header & Back */}
-        <div className="flex items-center justify-between">
+    <div className="bg-[#F7F7F4] text-[#070707]">
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-24 pb-20">
+        <div className="flex items-baseline justify-between mb-10">
           <div>
-            <h1 className="text-3xl font-extrabold text-gray-900">Keranjang Belanja</h1>
-            <p className="text-sm text-gray-500 mt-1">
-              Periksa produk pilihan Anda sebelum menyelesaikan pesanan
-            </p>
+            <p className="furniture text-[#070707]/50 mb-3">Keranjang — 01</p>
+            <h1 className="display-tight text-5xl sm:text-6xl font-medium">Keranjang <em className="italic font-normal">belanja.</em></h1>
           </div>
-          <Link
-            href="/products"
-            className="text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition"
-          >
-            ← Lanjut Belanja
-          </Link>
+          <Link href="/products" className="furniture underline underline-offset-4 whitespace-nowrap">← Belanja</Link>
         </div>
-
         <CartViewClient initialCart={cart} />
       </div>
     </div>
